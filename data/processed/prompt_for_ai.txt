@@ -1,0 +1,16 @@
+Salut ! Je te fournis en pièce jointe un fichier JSON contenant une liste de recettes (avec url, titre et ingrédients).
+
+TA TÂCHE :
+Pour chaque recette de ce fichier, détermine le pays d'origine et la catégorie du plat.
+Génère-moi en retour un NOUVEAU fichier JSON (ou donne-le-moi à télécharger) qui respecte EXACTEMENT cette structure :
+
+[
+  {
+    "url": "l_url_exacte_de_la_recette",
+    "country_iso3": "Le code ISO-3 du pays d'origine le plus probable (ex: ITA, FRA, JPN). Si c'est américain, mets USA. Si impossible à deviner, mets UNKNOWN",
+    "category": "La catégorie (choisis STRICTEMENT parmi: Dessert, Main Dish, Starter, Beverage, Side Dish)"
+  },
+  ...
+]
+
+Il est impératif que tu me renvoies toutes les recettes traitées dans ce format.

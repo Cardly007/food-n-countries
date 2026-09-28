@@ -2,9 +2,17 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Recettes en ligne : diversité ou uniformisation ?",
-    page_icon="🍲",
+    page_icon=":material/restaurant:",
     layout="wide",
 )
+
+st.sidebar.title("Configuration")
+dataset_choice = st.sidebar.radio(
+    "Jeu de données à analyser :",
+    ["Dataset Original (2 200 recettes)", "Dataset IA Enrichi (16 000 recettes)"],
+    help="L'IA a permis de classer toutes les recettes sans pays (principalement génériques/américaines) et d'ajouter une vraie détection NLP des sucres ajoutés."
+)
+st.session_state["use_ai_dataset"] = (dataset_choice == "Dataset IA Enrichi (16 000 recettes)")
 
 pages = {
     "Introduction": [
