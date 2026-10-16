@@ -1,56 +1,69 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
+from src.insights import build_home_headline, deduplicated_total, nutrient_convergence
 from src.load_data import load_processed
+from src.story import METHODO_PAGE, STEPS
+from src.theme import fmt_int, fmt_num, kpi
 
-st.title("🍲 Les plateformes de recettes reflètent-elles la diversité culinaire mondiale ?")
+overlap = load_processed("overlap_stats").iloc[0]
+cuisines = load_processed("cuisines_enriched")
+all_recipes = load_processed("all_recipes_enriched")
+mappable = cuisines[cuisines["map_type"] == "single_country"]
+
+# Accroche : le message central, affirmé seulement si les données le soutiennent
+# (part de pays aux calories médianes proches de la médiane globale, axe 2).
+st.title(build_home_headline(nutrient_convergence(mappable, "calories")))
 
 st.markdown(
     """
-Ce projet analyse **16 644 recettes** de la plateforme collaborative Allrecipes
-(2 218 catégorisées par pays d'origine, 14 426 recettes générales) pour
-questionner une tension entre **diversité culinaire affichée** et
-**uniformisation nutritionnelle possible**, sous couvert de notes élevées.
+**À qui s'adresse cette application ?** Aux lecteurs curieux de cuisine et d'alimentation.
 
-Utilisez le menu à gauche pour naviguer entre les quatre axes d'analyse.
+**Quel message ?** Les cuisines « du monde » telles qu'elles sont présentées en ligne
+se ressemblent plus qu'il n'y paraît.
+
+**Question centrale :** les recettes de chaque pays sont-elles aussi différentes
+qu'elles en ont l'air ?
 """
 )
+
+# Note moyenne calculée sur les recettes distinctes (une recette présente dans
+# les deux tables n'est comptée qu'une fois).
+distinct = pd.concat([all_recipes, cuisines]).drop_duplicates("url")
+n_countries = len(load_processed("by_country"))
 
 col1, col2, col3 = st.columns(3)
-try:
-    overlap = load_processed("overlap_stats").iloc[0]
-    col1.metric("Recettes générales", f"{overlap.n_all_recipes:,.0f}".replace(",", " "))
-    col2.metric("Recettes catégorisées par pays", f"{overlap.n_cuisines:,.0f}".replace(",", " "))
-    col3.metric(
-        "Chevauchement entre les deux tables",
-        f"{overlap.pct_cuisines_in_all_recipes:.0%}",
-        help="Part des recettes de cuisines.csv qui existent aussi dans all_recipes.csv (jointure sur l'URL)."
+with col1:
+    kpi(
+        "Recettes analysées",
+        fmt_int(deduplicated_total(overlap)),
+        help=(
+            "Deux tables issues du site Allrecipes : des recettes générales "
+            f"({fmt_int(overlap.n_all_recipes)}) et des recettes classées par cuisine "
+            f"({fmt_int(overlap.n_cuisines)}). {fmt_int(overlap.n_overlap)} recettes "
+            "figurent dans les deux : elles ne sont comptées qu'une fois."
+        ),
+        subtitle="publiées sur le site Allrecipes",
     )
-except FileNotFoundError as e:
-    st.error(str(e))
+with col2:
+    kpi(
+        "Étiquettes « cuisine du monde »",
+        fmt_int(cuisines["country"].nunique()),
+        help="Certaines étiquettes ne sont pas des pays (« Soul Food », « Jewish »…) : voir la page Méthodologie.",
+        subtitle=f"dont {fmt_int(n_countries)} correspondent à un seul pays",
+    )
+with col3:
+    kpi(
+        "Note moyenne des recettes",
+        f"{fmt_num(distinct['avg_rating'].mean(), 1)} / 5",
+        help=f"Moyenne sur les {fmt_int(distinct['avg_rating'].notna().sum())} recettes notées.",
+        subtitle="attribuée par les internautes",
+    )
 
-st.divider()
+st.subheader("Le parcours, en quatre étapes")
+st.markdown("\n".join(f"{i}. {phrase}" for i, (_, phrase) in enumerate(STEPS, start=1)))
 
-st.subheader("Les quatre axes")
-st.markdown(
-    """
-1. **🗺️ Carte — L'illusion de la diversité géographique** : les recettes
-   par pays s'appuient-elles sur des ingrédients distincts, ou sur une base
-   uniformisée ?
-2. **🥗 Profil nutritionnel** : les plats internationaux conservent-ils un
-   profil diététique propre à leur région ?
-3. **⭐ Notes vs nutrition** : les recettes les mieux notées sont-elles
-   aussi les plus caloriques / grasses ?
-4. **✅ Alternatives saines** : existe-t-il un volume significatif de
-   recettes à la fois bien notées et nutritionnellement raisonnables, et
-   d'où viennent-elles ?
-"""
-)
+st.page_link(STEPS[0][0], label="Commencer →", icon=":material/play_arrow:")
 
-st.info(
-    "⚠️ **Limite méthodologique à garder en tête sur toutes les pages** : "
-    "la colonne `country` du dataset mélange des nationalités (\"Chinese\") "
-    "et des catégories qui ne sont pas des pays (\"Soul Food\", \"Jewish\", "
-    "\"Scandinavian\"...). Voir la page Méthodologie pour le détail.",
-    icon=":material/warning:",
-)
+st.caption("Les choix de calcul et les limites des données sont détaillés dans la page Méthodologie.")
+st.page_link(METHODO_PAGE, label="Méthodologie", icon=":material/science:")

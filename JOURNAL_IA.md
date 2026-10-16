@@ -86,3 +86,52 @@ réellement. Trois constats ont orienté la suite :
   (`src/story.py`). `pygwalker` reste dans `requirements.txt` car
   `5_Explorer_BI.py` l'importe toujours.
 - Décision : modifié.
+
+## Page Accueil (`app_pages/0_Accueil.py`)
+
+### Accueil — titre d'accroche (titre-insight)
+- État initial : question générale « Les plateformes de recettes reflètent-elles
+  la diversité culinaire mondiale ? » et un paragraphe citant « 16 644 recettes »
+  écrit en dur.
+- Critique : le chiffre écrit en dur additionne deux tables qui se recoupent
+  (doublons) ; un titre-question ne transmet pas l'intention « sensibiliser »
+  (Séance 1, adéquation destinataire / intention).
+- Version finale et justification : `build_home_headline(conv)`.
+  - Formule : `conv = nutrient_convergence(recettes mono-pays, "calories")`,
+    part des pays (≥ 20 recettes) dont la médiane de calories par portion est
+    à ±20 % de la médiane globale.
+  - Seuil de bascule : part ≥ 50 % → affirmation « Les cuisines « du monde »
+    en ligne se ressemblent plus qu'il n'y paraît » ; sinon → question
+    « … se ressemblent-elles autant qu'on le dit ? ».
+  - Pourquoi : l'accroche ne doit affirmer le message central que si
+    l'indicateur le plus direct (axe 2) le soutient. Valeur actuelle : 21 pays
+    sur 34 (62 %) → affirmation.
+- Décision : modifié.
+
+### Accueil — KPI
+- État initial : 3 `st.metric` (recettes générales, recettes par pays,
+  chevauchement en %), sans total dédupliqué.
+- Critique : le lecteur grand public additionne spontanément les deux
+  premiers chiffres et obtient un total faux ; le « chevauchement » est un
+  détail technique hors du message (Séance 1, destinataire).
+- Alternative(s) envisagée(s) et écartée(s) : garder les trois chiffres
+  techniques avec une note, écarté (trop de détails techniques sur la page
+  d'entrée, renvoyés en Méthodologie).
+- Version finale et justification : 3 KPI au format unique `kpi` :
+  recettes analysées = `n_all_recipes + n_cuisines − n_overlap` (aide qui
+  explique les deux tables et le recoupement) ; nombre d'étiquettes
+  « cuisine du monde » (sous-titre : combien correspondent à un seul pays) ;
+  note moyenne sur les recettes distinctes (dédupliquées par URL). Tous les
+  chiffres sont calculés.
+- Décision : modifié.
+
+### Accueil — liste des axes
+- État initial : liste des quatre axes en texte libre, menu à gauche en
+  accès libre.
+- Critique : logique narrative et guidée attendue pour cette variante
+  (Séance 1) ; le lecteur doit savoir par où commencer.
+- Version finale et justification : rappel des quatre étapes du fil (tirées
+  de `src/story.py`, source unique) et bouton « Commencer → » vers l'axe 1.
+  L'avertissement technique sur la colonne `country` est déplacé en
+  Méthodologie (lien en bas de page).
+- Décision : modifié.
