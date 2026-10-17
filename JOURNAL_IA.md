@@ -128,3 +128,27 @@
 - Alternative(s) envisagée(s) et écartée(s), pourquoi : CSS injecté — écarté, la configuration de thème suffit et reste maintenable.
 - Version finale et justification : couleur primaire = bleu `#0072B2` de la palette.
 - Décision : modifié.
+
+---
+
+## Axe 2 — Test de la diversité (`app_pages/2_Profil_Nutritionnel.py`)
+
+### Axe 2 — boîtes à moustaches par pays (`build_boxplots`)
+- État initial : boxplots Plotly par défaut, 15 pays par défaut, ordre = nombre de recettes, choix de variable par nom brut (`calories`, `fat`…), aucun repère commun.
+- Critique : la tâche est de **comparer des distributions** (Séance 4) : il faut un repère commun pour juger « convergence ou spécificité » ; 15 boîtes rendent la comparaison laborieuse ; ordre non lié à la variable lue ; libellés techniques (Séance 3).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : violons — écartés, la forme de densité est plus difficile à comparer que médiane + quartiles pour un public non statisticien ; nuage de points par pays (strip plot) — écarté, ~65 points par pays se chevauchent ; une couleur par pays — écartée, la position en abscisse identifie déjà le pays (double encodage inutile, et > 6 couleurs).
+- Version finale et justification : 8 pays par défaut (curseur conservé, jusqu'aux 41), pays triés par médiane décroissante, une seule couleur, **ligne de référence = médiane de toutes les recettes des 41 pays** annotée, valeurs extrêmes masquées (signalé en sous-titre), axe à partir de 0, consigne de lecture « boîtes alignées sur la ligne = convergence », nombre de recettes sans valeur indiqué.
+- Décision : modifié.
+
+### Axe 2 — dépassement de seuils (`build_threshold_bars`)
+- État initial : barres verticales groupées (calories et lipides) avec légende `variable` / `pct_exceeds_calories`, tri sur les calories seulement, valeurs manquantes comptées comme « sous le seuil ».
+- Critique : noms de colonnes bruts à l'écran (Séance 3) ; deux séries triées sur une seule rendent la seconde illisible ; données manquantes lissées (Séance 3) ; pas de repère pour juger si un pays est « au-dessus ».
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : barres groupées bien légendées — écartées, le tri ne peut servir qu'une série ; petits multiples des 3 seuils côte à côte — envisagés, écartés pour garder un seul graphique lisible sur écran étroit ; couleur d'alerte (vermillon) sur les pays au-dessus — écartée, l'alerte doit rester rare et un écart à la moyenne n'est pas un dépassement de norme.
+- Version finale et justification : **un graphique par seuil** (sélecteur calories / lipides / glucides, le seuil glucides étant calculé dans `src/indicators.py`), barres horizontales triées par part décroissante, axe en % à partir de 0, ligne de référence = part observée sur l'ensemble des pays, gris neutre + accent orange pour les pays au-dessus de cette part, parts calculées sur les seules recettes renseignées (nombre exclu affiché).
+- Décision : modifié.
+
+### Axe 2 — avertissement « pas de catégorie de plat »
+- État initial : `st.warning` conservé avec nom de colonne brut (`category`).
+- Version finale et justification : avertissement conservé, reformulé sans nom de colonne.
+- Critique / alternatives : aucune.
+- Décision : conservé.
