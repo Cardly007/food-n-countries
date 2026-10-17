@@ -40,7 +40,8 @@ try:
         ),
         help=(
             "Le jeu de données contient deux tables : les recettes générales "
-            "(sans pays) et les recettes rangées par Allrecipes dans une catégorie de cuisine nationale ou régionale). Certaines "
+            "(sans pays) et les recettes rangées par Allrecipes dans une "
+            "catégorie de cuisine nationale ou régionale. Certaines "
             "recettes figurent dans les deux tables (même URL) : elles ne sont "
             "comptées qu'une fois ici."
         ),

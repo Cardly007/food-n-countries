@@ -82,3 +82,49 @@
 - Alternative(s) envisagée(s) et écartée(s), pourquoi : schéma graphique du parcours — écarté, 4 cartes texte suffisent et restent cliquables.
 - Version finale et justification : bloc « À qui / Pour décider quoi / Question centrale », puis 4 cartes « diagnostic → test → hypothèse → décision » avec la question de chaque axe et un lien vers la page. Les entrées du menu latéral reprennent ces 4 étapes.
 - Décision : modifié.
+
+---
+
+## Axe 1 — Diagnostic (`app_pages/1_Carte.py`)
+
+### Axe 1 — carte choroplèthe (`build_map`)
+- État initial : choroplèthe avec échelle `OrRd` (rouge) pour les indicateurs « négatifs » et `Blues` pour les autres ; titre = nom de l'indicateur ; seule vue des données par pays.
+- Critique : changer de teinte selon l'indicateur impose un jugement (rouge = mauvais) et casse la cohérence (Séance 3) ; une intensité de couleur ne permet qu'une comparaison approximative, pas un classement (Séance 2) ; les pays sans donnée ne sont pas signalés comme tels.
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : carte à symboles proportionnels (cercles) — écartée, la surface est encore moins précise que la couleur (Séance 2) ; échelle divergente centrée sur la moyenne — écartée, aucun point milieu n'a de sens métier pour la plupart des indicateurs ; supprimer la carte — écarté, la tâche « localiser » reste pertinente pour le diagnostic.
+- Version finale et justification : carte conservée pour **localiser**, échelle séquentielle unique `Blues`, sans cadre ni côtes, pays sans recette en gris clair (annoncé en sous-titre), titre-question, seuils rappelés en sous-titre pour les indicateurs de dépassement. Note : la carte télécharge le fond de carte depuis le CDN de Plotly ; elle n'a pas pu être affichée dans l'environnement de test (réseau bloqué), le reste de la page oui.
+- Décision : modifié.
+
+### Axe 1 — classement des pays (`build_ranking`, nouveau)
+- État initial : inexistant (seul le texte « N recettes sur 41 pays »).
+- Critique : pour comparer précisément, il faut encoder par position / longueur sur une échelle commune (Séances 2 et 4).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : barres verticales — écartées, 41 libellés de pays deviendraient illisibles en abscisse ; barres pour la note moyenne — écartées, une barre part de 0 et écraserait des écarts de quelques dixièmes, alors qu'un axe tronqué est interdit pour des barres (Séance 3).
+- Version finale et justification : barres horizontales triées (plus élevé en haut), axe à 0, une seule couleur (bleu) car la couleur ne porte aucune variable ; pour la note moyenne, **points** sur un axe zoomé dont la plage est écrite dans le titre de l'axe. Les pays sans valeur sont comptés sous le graphique.
+- Décision : créé.
+
+### Axe 1 — comparatif des ingrédients de base (`build_staples_bars`)
+- État initial : barres groupées verticales, 8 pays par défaut, couleurs Plotly par défaut, nom de colonne `pct_recipes`, ingrédients en anglais dans l'ordre de la liste.
+- Critique : 8 couleurs dépassent la limite de ~6 catégories de couleur (mémoire de travail, Séance 2) ; couleur d'un pays variable selon la sélection (Séance 3) ; ordre des ingrédients arbitraire.
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : petits multiples (un graphique par pays) — écartés, la comparaison entre pays pour un même ingrédient demanderait des allers-retours ; barres empilées — écartées, les parts ne forment pas un total (une recette contient plusieurs ingrédients) (Séance 5).
+- Version finale et justification : barres groupées, **5 pays au plus** (sélection bloquée à 5), couleurs fixes par pays, ingrédients traduits et triés par fréquence moyenne décroissante, axe en % à partir de 0, fin liseré blanc entre barres adjacentes.
+- Décision : modifié.
+
+### Axe 1 — heatmap pays × ingrédient (`build_staples_heatmap`, nouveau)
+- État initial : inexistant.
+- Critique : les barres groupées ne passent pas à l'échelle au-delà de 5 pays ; pour repérer des **motifs** sur beaucoup de pays, l'intensité de couleur suffit (ordre de grandeur, Séance 2).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : heatmap seule, sans barres — écartée, la couleur ne permet pas une comparaison précise entre 2 ou 3 pays ; échelle de couleur différente des autres graphiques — écartée (cohérence, Séance 3).
+- Version finale et justification : sélecteur « Barres groupées / Heatmap » ; heatmap en `Blues` (0 à 100 %), valeurs écrites dans chaque case (l'information ne repose pas sur la couleur seule), option « tous les pays » réservée à la heatmap, pays triés par nombre de recettes.
+- Décision : créé.
+
+### Axe 1 — recettes non cartographiables (expander)
+- État initial : tableau brut (`country`, `map_type`, `n_recipes`).
+- Critique : noms de colonnes et codes techniques visibles (Séance 3).
+- Version finale et justification : expander conservé, colonnes et types traduits, mention que ces recettes restent proposées comme candidates à l'axe 4.
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : aucune.
+- Décision : modifié.
+
+### Toutes les pages — couleur des widgets Streamlit (`.streamlit/config.toml`)
+- État initial : thème Streamlit par défaut, puces de sélection et boutons en rouge.
+- Critique : le rouge des widgets entre en concurrence avec les couleurs des pays (dont le vermillon) et avec la couleur d'alerte (Séance 3).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : CSS injecté — écarté, la configuration de thème suffit et reste maintenable.
+- Version finale et justification : couleur primaire = bleu `#0072B2` de la palette.
+- Décision : modifié.
