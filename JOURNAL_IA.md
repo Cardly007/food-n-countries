@@ -64,3 +64,21 @@
 - Alternative(s) envisagée(s) et écartée(s), pourquoi : supprimer le fichier — écarté (le brief demande de le garder) ; le laisser dans un expander de la Méthodologie — écarté, l'import de PyGWalker alourdit le chargement de la page.
 - Version finale et justification : page retirée de `app.py`, fichier `app_pages/5_Explorer_BI.py` conservé hors navigation. `pygwalker` reste dans `requirements.txt` car ce fichier l'importe toujours.
 - Décision : écarté de la navigation.
+
+---
+
+## Accueil
+
+### Accueil — KPI « total de recettes »
+- État initial : texte « 16 644 recettes » codé en dur + 3 `st.metric` (recettes générales, recettes par pays, chevauchement en %).
+- Critique : 16 644 = 14 426 + 2 218 compte deux fois les recettes présentes dans les deux tables ; chiffre codé en dur, non recalculé si les données changent ; le chevauchement en % est un indicateur technique peu utile au destinataire (Séance 3, guider l'utilisateur).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : afficher les deux tables séparément sans total — écarté, le destinataire veut l'ordre de grandeur du corpus ; un diagramme de Venn du chevauchement — écarté, surface peu lisible pour comparer et trop d'encre pour 3 nombres (Séance 2).
+- Version finale et justification : 3 KPI au format `kpi` : recettes uniques (total dédupliqué = générales + par pays − communes, calculé depuis `overlap_stats`, avec le détail du calcul en sous-titre et la nature des deux tables en aide), recettes étiquetées par pays, étiquettes de cuisine (dont pays uniques, calculé depuis `country_mapping`).
+- Décision : modifié.
+
+### Accueil — brief décisionnel et parcours
+- État initial : titre-question générique, liste des 4 axes avec des intitulés affirmatifs (« L'illusion de la diversité géographique »).
+- Critique : intitulés qui imposent une conclusion avant l'analyse ; destinataire et décision non explicités (cadrage du sujet, Séance 1).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : schéma graphique du parcours — écarté, 4 cartes texte suffisent et restent cliquables.
+- Version finale et justification : bloc « À qui / Pour décider quoi / Question centrale », puis 4 cartes « diagnostic → test → hypothèse → décision » avec la question de chaque axe et un lien vers la page. Les entrées du menu latéral reprennent ces 4 étapes.
+- Décision : modifié.
