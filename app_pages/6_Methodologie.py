@@ -1,85 +1,151 @@
 import streamlit as st
-from src.load_data import load_processed
+
 from src.country_mapping import get_mapping_df
+from src.indicators import (
+    NUTRIENTS, SCATTER_SAMPLE_SIZE, SCATTER_X_CLIP_QUANTILE,
+    all_recipes, cuisines, dedup_totals, excluded_from_map,
+)
+from src.ingredients import STAPLE_KEYWORDS
+from src.labels import MAP_TYPE_LABELS, NUTRIENT_SHORT, country_label
+from src.nutrition import HEALTHY_CRITERIA, THRESHOLDS
+from src.theme import fmt_int, fmt_num, fmt_pct
 
 st.title("Méthodologie et limites")
 
 st.markdown(
     """
 Cette page centralise les choix méthodologiques et leurs limites — à
-réutiliser directement dans le Journal de bord (section "Audit et critique
-visuelle").
+réutiliser directement dans le journal de bord (section « Audit et critique
+visuelle »). Tous les chiffres cités ici sont recalculés à partir des données.
 """
 )
 
-st.subheader("1. Deux tables, pas une seule population de 16 644 recettes")
-overlap = load_processed("overlap_stats").iloc[0]
-st.write(
-    f"`all_recipes.csv` contient {overlap.n_all_recipes:,.0f} recettes, "
-    f"`cuisines.csv` en contient {overlap.n_cuisines:,.0f}. Seules "
-    f"{overlap.n_overlap:,.0f} recettes ({overlap.pct_cuisines_in_all_recipes:.1%} "
-    f"de `cuisines.csv`) existent dans les deux (jointure sur l'URL). "
-    f"**Ce ne sont donc pas des sous-ensembles l'un de l'autre** : on ne "
-    f"peut pas dire \"les 14 426 recettes, dont 2 218 catégorisées par pays\".".replace(",", " ")
+t = dedup_totals()
+st.subheader("1. Deux tables, et un total dédupliqué")
+st.markdown(
+    f"La table des recettes générales contient {fmt_int(t['n_all_recipes'])} recettes, "
+    f"celle des recettes étiquetées par pays en contient {fmt_int(t['n_cuisines'])}. "
+    f"Seules {fmt_int(t['n_overlap'])} recettes ({fmt_pct(t['pct_overlap'], 1)} des "
+    "recettes étiquetées) existent dans les deux (jointure sur l'URL). **Ce ne sont "
+    "donc pas des sous-ensembles l'une de l'autre**, et additionner les deux tables "
+    f"({fmt_int(t['n_all_recipes'] + t['n_cuisines'])}) compterait deux fois les "
+    "recettes communes.\n\n"
+    f"Le total affiché sur l'Accueil est **dédupliqué** : {fmt_int(t['n_all_recipes'])} + "
+    f"{fmt_int(t['n_cuisines'])} − {fmt_int(t['n_overlap'])} = **{fmt_int(t['n_unique'])} "
+    "recettes uniques**."
 )
 
-st.subheader("2. La colonne `country` n'est pas une liste de pays")
-st.markdown(
-    "8 des 49 valeurs de `country` (396 recettes, 18 % de `cuisines.csv`) "
-    "ne correspondent pas à un pays unique et sont exclues de la carte "
-    "choroplèthe (voir `src/country_mapping.py`) :"
-)
 mapping = get_mapping_df()
+excluded = excluded_from_map()
+n_excl = int(excluded["n_recipes"].sum())
+n_non_single = int((mapping["map_type"] != "single_country").sum())
+st.subheader("2. L'étiquette « pays » n'est pas une liste de pays")
+st.markdown(
+    f"{n_non_single} des {len(mapping)} étiquettes ({fmt_int(n_excl)} recettes, "
+    f"{fmt_pct(n_excl / t['n_cuisines'])} des recettes étiquetées) ne correspondent "
+    "pas à un pays unique et sont exclues de la carte et des comparaisons par pays "
+    "(voir `src/country_mapping.py`). Elles restent proposables comme recettes "
+    "candidates à l'axe 4 :"
+)
+non_single = mapping[mapping["map_type"] != "single_country"].sort_values("map_type")
 st.dataframe(
-    mapping[mapping["map_type"] != "single_country"].sort_values("map_type"),
-    width='stretch', hide_index=True,
+    non_single.assign(
+        Étiquette=non_single["country"].map(country_label),
+        Type=non_single["map_type"].map(MAP_TYPE_LABELS),
+    )[["Étiquette", "Type"]],
+    width="stretch", hide_index=True,
 )
 
 st.subheader("3. Pas de colonne sucre ni catégorie de plat")
 st.markdown(
     """
-- Les seules variables nutritionnelles disponibles sont `calories`, `fat`,
-  `carbs`, `protein` (par portion). **Il n'y a pas de colonne sucre** : les
-  analyses sur le sucre utilisent soit `carbs` comme proxy, soit une
-  détection par mot-clé dans le texte libre `ingredients`
-  (`src/ingredients.py`, `SUGAR_KEYWORDS`).
-- **Il n'y a pas de colonne catégorie** (dessert / plat principal /
-  entrée...). Une différence de profil nutritionnel entre deux pays peut
-  donc refléter une différence de composition du corpus (plus ou moins de
-  desserts) plutôt qu'une vraie différence culinaire nationale.
+- Les seules variables nutritionnelles disponibles sont les calories, les
+  lipides, les glucides et les protéines (par portion). **Il n'y a pas de
+  colonne sucre** : les analyses sur le sucre utilisent les glucides comme
+  proxy, ou une détection par mot-clé dans la liste d'ingrédients
+  (`src/ingredients.py`).
+- **Il n'y a pas de catégorie de plat** (dessert / plat principal / entrée…).
+  Une différence de profil nutritionnel entre deux pays peut donc refléter une
+  différence de composition du corpus (plus ou moins de desserts) plutôt
+  qu'une vraie différence culinaire nationale.
 """
 )
 
-st.subheader("4. Comptage d'ingrédients : une approximation, pas une mesure exacte")
+st.subheader("4. Ingrédients : des approximations, pas des mesures exactes")
 st.markdown(
-    """
-Le champ `ingredients` est une liste jointe par `", "`, mais certains items
-contiennent eux-mêmes une virgule interne (ex : `"margarine, softened"` est
-un seul ingrédient, pas deux). Le nombre d'items calculé par
-`nombre de virgules + 1` (`approx_n_items`) **surestime légèrement** le
-vrai nombre d'ingrédients. À utiliser en **comparaison relative entre
-pays**, jamais comme un chiffre absolu présenté seul.
+    f"""
+- La présence d'un ingrédient de base est détectée par mot-clé sur une liste
+  de {len(STAPLE_KEYWORDS)} ingrédients, non exhaustive (axe 1).
+- La liste d'ingrédients est un texte séparé par des virgules, mais certains
+  items contiennent eux-mêmes une virgule (« margarine, softened » est un seul
+  ingrédient). Le nombre d'ingrédients calculé par « nombre de virgules + 1 »
+  **surestime légèrement** le vrai nombre : à utiliser en **comparaison
+  relative entre pays**, jamais comme un chiffre absolu présenté seul.
 """
 )
 
 st.subheader("5. Seuils nutritionnels")
 st.markdown(
-    """
-Les seuils utilisés (`src/nutrition.py`) sont des repères indicatifs (base
-~2000 kcal/jour pour un adulte), pas des normes cliniques ou OMS
-appliquées littéralement. Ils sont volontairement paramétrables et modifiés
-en direct sur la page **Alternatives saines** pour que le choix de seuil
-soit assumé plutôt que subi.
+    f"""
+Les seuils (`src/nutrition.py`) sont des repères indicatifs par portion (base
+~2 000 kcal / jour pour un adulte), pas des normes cliniques appliquées
+littéralement :
+
+- **Dépassement (axe 2)** : calories > {THRESHOLDS['calories_high']} kcal,
+  lipides > {THRESHOLDS['fat_high_g']} g, glucides > {THRESHOLDS['carbs_high_g']} g
+  (proxy sucre).
+- **Recette saine et bien notée (axe 4, valeurs par défaut)** : calories ≤
+  {HEALTHY_CRITERIA['calories_max']} kcal, lipides ≤ {HEALTHY_CRITERIA['fat_max_g']} g,
+  note ≥ {fmt_num(HEALTHY_CRITERIA['min_rating'], 1)}, au moins
+  {HEALTHY_CRITERIA['min_total_ratings']} avis. Le minimum d'avis évite de
+  retenir une recette notée 5/5 par une seule personne.
+
+Ces seuils sont **réglables en direct** sur la page Décision pour que le choix
+soit assumé plutôt que subi : le tableau de recettes candidates suit les
+seuils choisis.
 """
 )
 
-st.subheader("6. Corrélation ≠ causalité (Axe 3)")
+st.subheader("6. Corrélation ≠ causalité (axe 3)")
 st.markdown(
     """
-Une corrélation positive entre note et densité calorique/lipidique ne
-démontre pas que les utilisateurs "récompensent" la malbouffe : elle peut
-refléter une sur-représentation des desserts et plats riches parmi les
-recettes les plus commentées, ou un biais de sélection (seules les
-recettes qui plaisent reçoivent beaucoup d'avis).
+Une relation entre note et densité calorique ne démontre pas que les
+utilisateurs « récompensent » la malbouffe : elle peut refléter une
+sur-représentation des desserts et plats riches parmi les recettes les plus
+commentées, ou un biais de sélection (seules les recettes qui plaisent
+reçoivent beaucoup d'avis). Avec plusieurs milliers de recettes, une relation
+très faible peut être statistiquement détectable sans être importante en
+pratique : la page indique donc la **force** de la relation (ρ de Spearman),
+pas seulement sa significativité.
 """
 )
+
+st.subheader("7. Échantillon des nuages de points (axe 3)")
+st.markdown(
+    f"""
+Pour rester lisibles, les nuages de points ne dessinent qu'un **échantillon
+aléatoire de {fmt_int(SCATTER_SAMPLE_SIZE)} recettes** (tirage fixe, reproductible). L'effectif réel
+est écrit sous chaque graphique, et la droite de tendance comme le ρ de
+Spearman sont calculés sur **toutes** les recettes renseignées, pas sur
+l'échantillon. L'axe horizontal est limité au {SCATTER_X_CLIP_QUANTILE * 100:.0f}e centile ; le nombre de
+recettes non dessinées est indiqué.
+"""
+)
+
+st.subheader("8. Valeurs manquantes")
+general, labelled = all_recipes(), cuisines()
+rows = []
+for n in NUTRIENTS + ["avg_rating"]:
+    name = NUTRIENT_SHORT.get(n, "Note moyenne")
+    rows.append({
+        "Variable": name,
+        "Recettes générales sans valeur": fmt_int(general[n].isna().sum()),
+        "Recettes étiquetées sans valeur": fmt_int(labelled[n].isna().sum()),
+    })
+st.markdown(
+    "Les valeurs manquantes ne sont ni remplacées ni comptées comme « sous le "
+    "seuil » : les parts de l'axe 2 sont calculées sur les seules recettes "
+    "renseignées, et une recette sans valeur pour un critère n'est pas retenue "
+    "à l'axe 4. Le nombre de recettes concernées est affiché sous chaque graphique."
+)
+st.dataframe(rows, width="stretch", hide_index=True)

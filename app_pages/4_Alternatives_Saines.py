@@ -19,7 +19,7 @@ st.caption(
     "Critères par défaut (réglables ci-dessous, voir Méthodologie) : "
     f"calories ≤ {HEALTHY_CRITERIA['calories_max']} kcal / portion, "
     f"lipides ≤ {HEALTHY_CRITERIA['fat_max_g']} g / portion, "
-    f"note ≥ {HEALTHY_CRITERIA['min_rating']}, "
+    f"note ≥ {fmt_num(HEALTHY_CRITERIA['min_rating'], 1)}, "
     f"au moins {HEALTHY_CRITERIA['min_total_ratings']} avis."
 )
 

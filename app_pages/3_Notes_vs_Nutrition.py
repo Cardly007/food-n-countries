@@ -3,15 +3,15 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.indicators import all_recipes, cuisines, describe_spearman, mean_with_ci, spearman
+from src.indicators import (
+    SCATTER_SAMPLE_SIZE as SAMPLE_SIZE, SCATTER_X_CLIP_QUANTILE as X_CLIP_QUANTILE,
+    all_recipes, cuisines, describe_spearman, mean_with_ci, spearman,
+)
 from src.labels import label
 from src.theme import (
     ACCENT, INK_MUTED, NEUTRAL, SEQUENTIAL_MAIN,
     apply_theme, chart_title, fmt_int, fmt_num, hide_grid,
 )
-
-SAMPLE_SIZE = 3000
-X_CLIP_QUANTILE = 0.99
 
 st.title("Axe 3 — Hypothèse : les recettes les plus riches sont-elles mieux notées ?")
 st.markdown("*Les recettes les plus riches sont-elles mieux notées ?*")
@@ -70,7 +70,7 @@ def scatter_caption(info: dict) -> str:
         f"Échantillon aléatoire de {fmt_int(info['n_sample'])} recettes sur "
         f"{fmt_int(info['n'])} affichées (lisibilité) ; la tendance et ρ sont "
         f"calculés sur les {fmt_int(info['n'])}. Axe horizontal limité à "
-        f"{fmt_int(info['x_max'])} (99e centile) : {fmt_int(info['n_clipped'])} "
+        f"{fmt_int(info['x_max'])} ({X_CLIP_QUANTILE * 100:.0f}e centile) : {fmt_int(info['n_clipped'])} "
         "recettes au-delà ne sont pas dessinées."
     )
 

@@ -201,3 +201,42 @@
 - Alternative(s) envisagée(s) et écartée(s), pourquoi : « top 10 » figé en graphique — écarté, le responsable éditorial doit pouvoir filtrer et construire sa propre sélection ; inclure les recettes générales sans pays — écarté, elles ne répondent pas à l'objectif « diversité culinaire ».
 - Version finale et justification : tableau visible en conclusion, mêmes seuils que les filtres du haut, tri par note puis nombre d'avis, filtres par pays et par nom, option pour inclure les étiquettes non nationales (Tex-Mex, Soul food…), libellés avec unités, lien cliquable « Ouvrir la recette », export CSV de la sélection.
 - Décision : créé.
+
+---
+
+## Méthodologie (`app_pages/6_Methodologie.py`)
+
+### Méthodologie — chiffres et nouvelles sections
+- État initial : structure en 6 sections, plusieurs chiffres codés en dur (« 14 426 », « 2 218 », « 8 des 49 valeurs (396 recettes, 18 %) »), noms de colonnes bruts.
+- Critique : **le chiffre codé en dur était faux** : le calcul depuis les données donne 456 recettes non cartographiables (21 % des recettes étiquetées), pas 396 (18 %). Exemple concret du risque d'un texte non recalculé (critère d'acceptation : aucun chiffre codé en dur).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : déplacer la méthodologie dans des expanders sur chaque page — écarté, la page sert de matière au journal de bord et doit rester d'un seul tenant.
+- Version finale et justification : structure conservée (sections 1 à 6) et complétée : total dédupliqué et son calcul (1), seuils de dépassement et critères « sain et bien noté » lus dans `src/nutrition.py` (5), « détectable ≠ important » (6), **échantillon des nuages de points** (7, taille et quantile lus dans `src/indicators.py`), **valeurs manquantes** avec tableau des effectifs (8). Tous les chiffres sont calculés.
+- Décision : modifié.
+
+---
+
+## Propositions de l'IA écartées (synthèse)
+
+| Proposition | Où | Raison de l'écart |
+|---|---|---|
+| Jaune Okabe-Ito comme 5e couleur de pays | Socle | Contraste 1,3:1 sur fond blanc (vérifié par script) |
+| Vert Okabe-Ito pour remplacer le jaune | Socle | Interdit d'opposer rouge (vermillon) et vert |
+| `st.metric` avec `delta` pour les parts | Accueil, axe 4 | Flèche verte/rouge = jugement d'évolution hors de propos |
+| Diagramme de Venn du chevauchement des tables | Accueil | Surfaces peu comparables, encre excessive pour 3 nombres |
+| Carte à symboles proportionnels | Axe 1 | Surface encore moins précise que la couleur |
+| Barres pour la note moyenne par pays | Axe 1 | Axe à 0 obligatoire → écarts de dixièmes invisibles ; remplacé par des points |
+| Barres empilées des ingrédients | Axe 1 | Les parts ne forment pas un total |
+| Violons / strip plot par pays | Axe 2 | Moins lisibles que médiane + quartiles pour le destinataire |
+| Couleur par pays dans les boxplots | Axe 2 | Double encodage (position + couleur) et > 6 couleurs |
+| Vermillon (alerte) pour les pays au-dessus de la moyenne | Axe 2 | Un écart à la moyenne n'est pas un dépassement de norme |
+| Hexbin / density heatmap des notes | Axe 3 | Notes discrètes → bandes peu lisibles (gardé en réserve, comme le binning) |
+| Barres tronquées note avec / sans réconfort | Axe 3 | Barres tronquées interdites ; remplacé par des points + IC 95 % |
+| Top 10 figé en graphique | Axe 4 | Le destinataire doit filtrer et construire sa sélection |
+
+## Points à valider avec le propriétaire du projet
+
+1. Couleur d'un pays hors des 5 pays du dictionnaire fixe : attribuée parmi les couleurs libres de la sélection (peut varier d'une sélection à l'autre).
+2. Nuages de points : garder l'échantillon annoncé, ou passer à une moyenne de note par tranche de calories (sans échantillon).
+3. Parts « au-dessus du seuil » recalculées hors valeurs manquantes dans `src/indicators.py` : à reporter dans le pipeline si souhaité (`by_country.parquet` les compte comme « sous le seuil »).
+4. Libellés des pays traduits en français (`src/labels.py`) : à relire.
+5. Accent orange des axes 2 (pays au-dessus de la part globale) et 4 (5 premiers pays) : règle d'accent différente selon la question, à confirmer.

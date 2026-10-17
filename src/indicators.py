@@ -22,6 +22,11 @@ from src.load_data import load_processed
 from src.nutrition import THRESHOLDS
 
 NUTRIENTS = ["calories", "fat", "carbs", "protein"]
+
+# Nuages de points de l'axe 3 : taille de l'échantillon dessiné et quantile
+# au-delà duquel l'axe horizontal est coupé (cités aussi en Méthodologie).
+SCATTER_SAMPLE_SIZE = 3000
+SCATTER_X_CLIP_QUANTILE = 0.99
 THRESHOLD_BY_NUTRIENT = {
     "calories": THRESHOLDS["calories_high"],
     "fat": THRESHOLDS["fat_high_g"],
