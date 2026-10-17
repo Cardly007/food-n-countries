@@ -223,3 +223,61 @@ réellement. Trois constats ont orienté la suite :
 - Version finale : `.streamlit/config.toml` fixe la couleur primaire au bleu
   Okabe-Ito `#0072B2`.
 - Décision : modifié.
+
+## Page 2 — Profil nutritionnel (`app_pages/2_Profil_Nutritionnel.py`)
+
+### Page 2 — boîtes à moustaches par pays (graphique principal)
+- État initial : deux onglets ; boîtes à moustaches de 15 pays par défaut
+  (curseur jusqu'à 40), une couleur Plotly par défaut, variable choisie par
+  boutons radio avec noms bruts (`calories`, `fat`…), sans repère commun.
+- Critique : sans ligne de référence, l'œil doit comparer 15 boîtes deux à
+  deux : le message (convergence) n'est pas lisible en 5 secondes
+  (Séance 4) ; noms de colonnes bruts (Séance 3) ; deux onglets = deux
+  messages concurrents.
+- Alternative(s) envisagée(s) et écartée(s) : barres des médianes par pays,
+  écartées car elles masquent la dispersion (comparer des distributions,
+  Séance 4) ; violons, écartés (moins familiers pour le grand public) ;
+  boîtes colorées par pays, écartées (double encodage avec l'axe X, et 8
+  couleurs dépassent ~6 catégories).
+- Version finale et justification : 8 pays les plus représentés, boîtes
+  grises, **ligne de référence orange = médiane globale** (l'accent porte le
+  message du titre), axe partant de 0, points extrêmes masqués et axe
+  borné aux moustaches (échelle explicite), annotation de lecture sous le
+  graphique, nombre de valeurs manquantes indiqué dans le sous-titre.
+  Variable et nombre de pays réglables dans « Aller plus loin ».
+- Titre-insight : `build_insight_title_axe2`. Formule : sur les pays d'au
+  moins 20 recettes, part des pays dont la médiane (calories par défaut) est
+  à ±20 % de la médiane globale de toutes les recettes mono-pays. Seuils :
+  ≥ 75 % → « Des profils très proches : k pays sur n… » ; ≥ 50 % → « La
+  plupart des pays (k sur n)… » ; sinon → « Des profils contrastés : seuls k
+  pays sur n… ». Sous-titre : pays le plus éloigné (écart relatif) et limite
+  « sans distinction desserts / plats ». Valeurs actuelles : calories 21/34
+  (62 %), lipides 24/34, glucides 21/34 → « la plupart » ; protéines 9/34 →
+  « profils contrastés » (le titre bascule bien quand la donnée ne soutient
+  pas le message).
+- Message clé : `build_key_message_axe2` ajoute « Les recettes changent
+  d'étiquette, beaucoup moins de profil » **seulement** si la part ≥ 50 % ;
+  sinon une phrase qui reconnaît un profil distinct.
+- Décision : modifié.
+
+### Page 2 — dépassement des seuils (graphique secondaire)
+- État initial : onglet dédié, barres verticales groupées
+  (`pct_exceeds_calories`, `pct_exceeds_fat`), légende « variable » brute.
+- Critique : libellés bruts (Séance 3) ; deux séries groupées pour un
+  message secondaire ; noms de pays verticaux difficiles à lire.
+- Version finale et justification : déplacé dans « Aller plus loin » ; un
+  seuil à la fois (radio), barres horizontales triées décroissantes, axe à
+  0, valeurs affichées, trait pointillé = moyenne de l'ensemble ; couleur
+  d'alerte (vermillon) **uniquement** pour les pays au-dessus de la moyenne,
+  gris sinon (alerte avec parcimonie, Séance 2).
+- Titre-insight : `build_insight_title_axe2_thresholds` : « Recettes au-delà
+  de [seuil] : de [min] ([pays]) à [max] ([pays]) », sous-titre « k pays sur
+  n au-dessus de la moyenne (x %) ». Valeurs calculées, seuils lus dans
+  `src/nutrition.py`.
+- Décision : modifié.
+
+### Page 2 — avertissement « pas de colonne catégorie »
+- État initial : `st.warning` en bas de page, avec nom de colonne brut.
+- Version finale : encadré `st.info` juste sous le graphique principal,
+  reformulé sans jargon.
+- Décision : modifié.

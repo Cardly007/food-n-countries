@@ -206,6 +206,14 @@ def build_insight_title_axe2(conv: dict) -> tuple[str, str]:
     return title, subtitle
 
 
+def build_key_message_axe2(conv: dict) -> str:
+    """Conclusion de la page 2, conditionnée à la part de pays proches."""
+    title, _ = build_insight_title_axe2(conv)
+    if conv["n_countries"] and conv["share_within"] >= CONVERGENCE_MAJORITY:
+        return f"<b>{title}.</b> Les recettes changent d'étiquette, beaucoup moins de profil."
+    return f"<b>{title}.</b> Sur cette variable, l'étiquette va de pair avec un profil distinct."
+
+
 def build_home_headline(conv: dict) -> str:
     """Accroche de l'accueil : affirmée seulement si la convergence est majoritaire."""
     if conv["n_countries"] and conv["share_within"] >= CONVERGENCE_MAJORITY:
@@ -338,4 +346,29 @@ def build_insight_title_axe4(by_country: pd.DataFrame, top_k: int = 3) -> tuple[
     subtitle = (f"Sur un pays type, environ {fmt_pct(by_country['pct_healthy'].median())} des recettes "
                 f"(médiane des {len(by_country)} pays d'au moins {MIN_RECIPES_AXE4} recettes). "
                 f"Petits effectifs : quelques recettes suffisent à changer le classement.")
+    return title, subtitle
+
+
+def threshold_rates(mappable: pd.DataFrame, flag_col: str, value_col: str,
+                    countries: list[str]) -> tuple[pd.DataFrame, float]:
+    """Part de recettes au-dessus d'un seuil, par pays et globale (valeurs connues seulement)."""
+    known = mappable.dropna(subset=[value_col])
+    global_rate = float(known[flag_col].mean())
+    per = (known[known["country"].isin(countries)]
+           .groupby("country")[flag_col].agg(rate="mean", n="count")
+           .reset_index().sort_values("rate", ascending=False))
+    return per, global_rate
+
+
+def build_insight_title_axe2_thresholds(per: pd.DataFrame, global_rate: float,
+                                        seuil_txt: str) -> tuple[str, str]:
+    """Titre du graphique des dépassements de seuil (expander de la page 2)."""
+    if per.empty:
+        return ("Aucun pays à afficher", "")
+    above = per[per["rate"] > global_rate]
+    hi, lo = per.iloc[0], per.iloc[-1]
+    title = (f"Recettes au-delà de {seuil_txt} : de {fmt_pct(lo.rate)} ({country_label(lo.country)}) "
+             f"à {fmt_pct(hi.rate)} ({country_label(hi.country)})")
+    subtitle = (f"{len(above)} pays sur {len(per)} au-dessus de la moyenne de l'ensemble "
+                f"({fmt_pct(global_rate)}, trait vertical). Seuil indicatif, par portion.")
     return title, subtitle
