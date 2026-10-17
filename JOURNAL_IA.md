@@ -355,3 +355,55 @@ réellement. Trois constats ont orienté la suite :
 - Version finale : `st.warning` placé juste sous le message clé, avant les
   graphiques (bien visible), en langage simple.
 - Décision : modifié.
+
+## Page 4 — Alternatives saines (`app_pages/4_Alternatives_Saines.py`)
+
+### Page 4 — critères et KPI
+- État initial : 4 champs de saisie visibles en haut de page ; 2 `st.metric`
+  avec delta « x % du total » (format de delta, flèche verte trompeuse).
+- Critique : trop de réglages visibles pour un grand public, la page
+  ressemble à un outil de sélection plutôt qu'à une conclusion (Séance 1) ;
+  le delta coloré suggère une évolution qui n'existe pas.
+- Version finale et justification : critères par défaut = compromis de
+  `src/nutrition.py` (≤ 500 kcal, ≤ 20 g de lipides, note ≥ 4,5, ≥ 20 avis),
+  rappelés en une ligne ; sliders dans l'expander « Régler mes critères ».
+  2 KPI au format `kpi` : recettes saines et bien notées sur les recettes
+  **distinctes** des deux tables (dédupliquées par URL) et, parmi elles,
+  recettes étiquetées par pays ; part du total en sous-titre.
+- Décision : modifié.
+
+### Page 4 — part de recettes saines et bien notées par pays
+- État initial : barres verticales de tous les pays (≥ 15 recettes), une
+  seule couleur, noms de pays verticaux.
+- Critique : ~37 barres sans mise en évidence : le lecteur ne sait pas où
+  regarder (Séance 3) ; lecture difficile des libellés.
+- Alternative(s) envisagée(s) et écartée(s) : carte choroplèthe de ce
+  pourcentage, écartée (comparaison précise demandée : position/longueur,
+  Séance 2) ; barres empilées saines / autres, écartées (le total par pays
+  n'est pas le message).
+- Version finale et justification : barres horizontales triées, 15
+  premiers pays, axe à 0, gris neutre + **orange sur les 3 pays en tête**
+  (l'accent porte le titre), étiquette « x % (k/n) » pour rendre visibles
+  les petits effectifs. Les recettes sans calories, lipides ou note ne
+  peuvent pas passer le filtre : signalé dans le sous-titre.
+- Titre-insight : `build_insight_title_axe4`. Formule : par pays (≥ 15
+  recettes), part des recettes qui passent les 4 critères ; classement par
+  part puis effectif. Titre : « [3 premiers pays] en tête : jusqu'à [max] %
+  de leurs recettes sont saines et bien notées » ; si aucune recette ne
+  passe → « Avec ces critères, aucune recette… ne passe le filtre ».
+  Sous-titre : médiane des pays et limite des petits effectifs.
+- Décision : modifié.
+
+### Page 4 — conclusion et appel à l'action
+- État initial : aucune conclusion ; tableau des recettes en expander.
+- Version finale et justification : message clé chiffré en haut (nombre de
+  recettes saines et bien notées, part du total) ; section « En résumé »
+  produite par `build_conclusion`, dont **chaque clause est conditionnée**
+  à son indicateur (convergence des calories ≥ 50 % des pays pour « profils
+  plus proches » ; deux corrélations « très faibles » pour « la note ne dit
+  presque rien de la richesse ») ; lien vers la Méthodologie. Tableau des
+  recettes conservé dans un expander, colonnes renommées, lien cliquable.
+- Limite repérée en relisant le tableau : des cocktails (« mojitos »)
+  passent le filtre « saine » ; c'est une conséquence de l'absence de
+  colonne catégorie, signalée en Méthodologie.
+- Décision : modifié.

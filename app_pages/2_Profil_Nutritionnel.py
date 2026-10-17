@@ -11,7 +11,7 @@ from src.nutrition import THRESHOLDS
 from src.story import key_message, next_button, step_header
 from src.theme import (
     ACCENT, ALERT, COLUMN_LABELS, NEUTRAL, NUTRIENT_SHORT, NUTRIENT_UNIT, apply_theme,
-    chart_title, country_label, fmt_int, fmt_num, show,
+    chart_title, country_label, fmt_int, fmt_num, fmt_pct, show,
 )
 
 STEP = 2
@@ -60,7 +60,7 @@ def build_threshold_bars(per, global_rate):
     colors = [ALERT if r > global_rate else NEUTRAL for r in df["rate"]]
     fig = go.Figure(go.Bar(
         x=df["rate"], y=df["pays"], orientation="h", marker_color=colors,
-        text=[f"{r:.0%}" for r in df["rate"]], textposition="outside", cliponaxis=False,
+        text=[fmt_pct(r) for r in df["rate"]], textposition="outside", cliponaxis=False,
         customdata=df["n"], hovertemplate="%{y} : %{x:.0%} (sur %{customdata} recettes)<extra></extra>",
     ))
     fig.add_vline(x=global_rate, line=dict(color="#222222", width=1.5, dash="dot"))

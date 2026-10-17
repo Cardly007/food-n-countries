@@ -372,3 +372,24 @@ def build_insight_title_axe2_thresholds(per: pd.DataFrame, global_rate: float,
     subtitle = (f"{len(above)} pays sur {len(per)} au-dessus de la moyenne de l'ensemble "
                 f"({fmt_pct(global_rate)}, trait vertical). Seuil indicatif, par portion.")
     return title, subtitle
+
+
+def build_conclusion(conv: dict, corrs: list[dict], n_healthy: int,
+                     n_countries_with: int, n_countries: int) -> str:
+    """Conclusion du parcours : chaque clause n'apparaît que si son indicateur la soutient."""
+    parts = []
+    if conv["n_countries"] and conv["share_within"] >= CONVERGENCE_MAJORITY:
+        parts.append("Les cuisines « du monde » ont des profils nutritionnels plus proches "
+                     "que leurs étiquettes ne le laissent penser")
+    else:
+        parts.append("Les cuisines « du monde » gardent des profils nutritionnels en partie distincts")
+    if all(correlation_strength(c["rho"], c["p"]) == "tres_faible" for c in corrs):
+        parts.append("la note ne dit presque rien de la richesse d'un plat")
+    else:
+        parts.append("la note va de pair, faiblement, avec la richesse d'un plat")
+    text = ", et ".join(parts) + "."
+    if n_healthy:
+        text += (f" Mais il n'est pas nécessaire de choisir entre plaisir et équilibre : "
+                 f"**{fmt_int(n_healthy)} recettes** répondent aux deux, dans "
+                 f"{fmt_int(n_countries_with)} des {fmt_int(n_countries)} pays comparés.")
+    return text
