@@ -281,3 +281,77 @@ réellement. Trois constats ont orienté la suite :
 - Version finale : encadré `st.info` juste sous le graphique principal,
   reformulé sans jargon.
 - Décision : modifié.
+
+## Page 3 — Notes vs nutrition (`app_pages/3_Notes_vs_Nutrition.py`)
+
+### Page 3 — message clé (titre-insight de page)
+- Formule : `build_key_message_axe3([ρ calories, ρ glucides])`, chaque ρ
+  classé par `correlation_strength` (voir ci-dessous).
+- Bascule : les deux « très faibles » → « Pas vraiment : la note d'une
+  recette n'est presque pas liée à sa richesse… » ; au moins une
+  « modérée » → « En partie… » ; sinon → « Très peu… ».
+- Pourquoi : le fil du brief annonçait « les notes semblent récompenser les
+  recettes riches ». Les données ne le soutiennent pas (ρ = 0,03 pour les
+  calories, −0,05 pour les glucides sur 8 692 / 8 684 recettes générales
+  ayant ≥ 10 avis). Conformément à la règle 1.1, le titre dit ce que
+  montrent les chiffres. **Point à valider** avec le propriétaire du projet :
+  ce résultat inverse l'étape 3 du fil narratif.
+- Décision : modifié.
+
+### Page 3 — nuages de points note × calories et note × glucides
+- État initial : deux nuages Plotly Express avec droite OLS, sous-titres
+  « Note vs calories », légende « n = tous les points » alors que seuls
+  3 000 points étaient tracés.
+- Critique : effectif annoncé trompeur (le graphique montre un échantillon) ;
+  titres descriptifs, sans message (Séance 3, titre aligné sur le message) ;
+  points bleus saturés, droite peu visible : l'élément saillant n'est pas
+  celui qui porte le message.
+- Alternative(s) envisagée(s) et écartée(s) : agrégation par tranches de
+  calories (moyenne de note par décile), envisagée, écartée pour rester
+  fidèle au brief (« les deux scatters sont conservés ») ; elle reste une
+  bonne option si le propriétaire préfère un graphique plus synthétique.
+- Version finale et justification : mêmes axes Y pour les deux graphiques
+  (comparaison directe), points gris semi-transparents (contexte), **droite
+  de tendance orange calculée sur toutes les recettes** (l'accent porte le
+  message : droite plate = lien très faible). Annonce explicite
+  « échantillon de 3 000 recettes sur N ». Axe des notes zoomé (axe tronqué
+  admis pour des points, Séance 3) et signalé dans le titre d'axe et la
+  légende, avec le nombre de recettes hors cadre ; axe X arrêté au 99e
+  centile, signalé. Tendance calculée avec `numpy.polyfit` (plus besoin de
+  `statsmodels` sur cette page).
+- Titre-insight : `build_insight_title_axe3(corr, variable)`. Formule : ρ de
+  Spearman et p-valeur sur les recettes ayant au moins N avis. Seuils :
+  |ρ| < 0,10 ou p ≥ 0,05 → « Lien très faible entre la richesse [en X] et la
+  note » ; |ρ| < 0,30 → « … vont de pair avec des notes légèrement plus
+  hautes / basses » ; sinon → « … vont de pair avec des notes plus hautes /
+  basses ». Jamais de formulation causale. Sous-titre : ρ, significativité,
+  effectif. Remarque : avec ~8 700 recettes, ρ = 0,03 est « significatif »
+  mais négligeable ; c'est pourquoi le seuil porte sur |ρ| et pas seulement
+  sur p.
+- Décision : modifié.
+
+### Page 3 — ingrédients « réconfort » et note
+- État initial : tableau brut (`has_comfort_ingredient`, `mean`, `count`).
+- Critique : un tableau ne permet pas de voir l'écart en 5 secondes
+  (Séance 4) ; noms de colonnes bruts (Séance 3).
+- Alternative(s) envisagée(s) et écartée(s) : barres des moyennes, écartées
+  car une barre doit partir de 0 (Séance 3), ce qui rendrait l'écart
+  (0,01 étoile) invisible et inutile ; un axe tronqué n'est admis que pour
+  des points.
+- Version finale et justification : graphique en points (moyenne) avec
+  barres d'incertitude à 95 %, effectifs affichés à côté de chaque point,
+  axe Y **zoomé et explicitement signalé** (titre d'axe + phrase sous le
+  graphique indiquant l'étendue couverte). Orange pour le groupe « avec »
+  (sujet de la question), gris foncé pour l'autre.
+- Titre-insight : `build_insight_title_comfort`. Formule : écart des
+  moyennes (avec − sans) et test de Welch. Seuil : |écart| < 0,05 étoile ou
+  p ≥ 0,05 → « Avec ou sans beurre, crème ou fromage : des notes quasi
+  identiques » ; sinon « un peu mieux / moins bien notées ». Valeur
+  actuelle : +0,01 étoile → « quasi identiques ».
+- Décision : modifié.
+
+### Page 3 — encadré de prudence
+- État initial : `st.info` en bas de page.
+- Version finale : `st.warning` placé juste sous le message clé, avant les
+  graphiques (bien visible), en langage simple.
+- Décision : modifié.
