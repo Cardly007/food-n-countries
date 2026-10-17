@@ -152,3 +152,27 @@
 - Version finale et justification : avertissement conservé, reformulé sans nom de colonne.
 - Critique / alternatives : aucune.
 - Décision : conservé.
+
+---
+
+## Axe 3 — Hypothèse sur le levier (`app_pages/3_Notes_vs_Nutrition.py`)
+
+### Axe 3 — nuages de points note × calories et note × glucides (`build_scatter`)
+- État initial : deux `px.scatter` sur un échantillon de 3 000 recettes, droite OLS calculée **sur l'échantillon**, légende « n = » égale à toutes les recettes, axes Y indépendants, ρ de Spearman calculé sans retirer les valeurs manquantes, phrase de résultat technique (« ρ = …, p = … »), effectifs codés en dur dans le sélecteur de population (« 14 426 », « 2 218 »).
+- Critique : l'échantillon n'est pas annoncé alors que n affiché = population entière (incohérence, Séance 3) ; deux axes Y différents empêchent de comparer les deux graphiques (cohérence, Séance 3) ; quelques recettes à plusieurs milliers de kcal écrasent le nuage ; jargon statistique sans explication (guider l'utilisateur, Séance 3) ; chiffres codés en dur.
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : nuage hexagonal (density heatmap) sur toutes les recettes — envisagé (supprime l'échantillonnage), écarté pour l'instant : les notes sont très discrètes (paliers de 0,1) et les hexagones produisent des bandes peu lisibles pour un non-spécialiste ; moyenne de la note par tranche de calories (binning) — bonne alternative, gardée en réserve si le propriétaire préfère supprimer l'échantillon ; échelle log en X — écartée, peu intuitive pour le destinataire.
+- Version finale et justification : nuage sur un **échantillon de 3 000 recettes annoncé explicitement** (« échantillon de 3 000 recettes sur N ») ; tendance et ρ calculés sur toutes les recettes renseignées ; opacité 0,25 ; **même axe Y zoomé** pour les deux graphiques (point/courbe : troncature admise et écrite dans le titre d'axe) ; axe X limité au 99e centile avec le nombre de recettes non dessinées ; ρ rédigé en une phrase (sens, force, signification, rappel de l'échelle −1/+1, et mise en garde « détectable ≠ important » quand l'effet est quasi nul mais significatif) ; effectifs des populations calculés.
+- Décision : modifié.
+
+### Axe 3 — ingrédients « réconfort » et note (`build_comfort_points`)
+- État initial : `st.dataframe` brut (`has_comfort_ingredient`, `mean`, `count`).
+- Critique : un tableau ne montre pas l'écart ; noms de colonnes bruts (Séance 3).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : deux barres — écartées, des barres doivent partir de 0, ce qui rend invisible un écart de quelques centièmes d'étoile, et les tronquer est interdit (Séance 3) ; boxplots des deux groupes — écartés, les notes très concentrées autour de 4,5 donnent deux boîtes quasi identiques qui ne répondent pas à la question « la moyenne diffère-t-elle ? ».
+- Version finale et justification : **graphique en points** (moyenne de chaque groupe) avec intervalle de confiance à 95 %, axe zoomé dont la plage est écrite dans le titre d'axe, valeur et effectif écrits à côté de chaque point, gris = sans / orange = avec (accent sur le groupe testé).
+- Décision : modifié.
+
+### Axe 3 — encadré de prudence
+- État initial : `st.info` sur le biais « desserts ».
+- Version finale et justification : conservé, reformulé sans nom de colonne.
+- Critique / alternatives : aucune.
+- Décision : conservé.

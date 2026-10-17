@@ -130,9 +130,13 @@ def describe_spearman(res: dict, x_label: str, y_label: str = "la note") -> str:
     )
     n_txt = f"{n:,}".replace(",", " ")
     p_txt = "p < 0,001" if p < 0.001 else f"p = {p:.3f}".replace(".", ",")
+    rho_txt = f"{rho:.2f}".replace(".", ",").replace("-", "\u2212")
+    if a < 0.1 and p < 0.05:
+        signif += (" ; avec autant de recettes, un écart minime devient détectable "
+                   "sans être important en pratique")
     return (
         f"Quand {x_label} augmente, {y_label} {trend} : relation **{strength}** "
-        f"(ρ de Spearman = {rho:.2f} sur {n_txt} recettes ; ρ varie de −1 à +1, "
+        f"(ρ de Spearman = {rho_txt} sur {n_txt} recettes ; ρ varie de −1 à +1, "
         f"0 signifiant aucune relation). Avec {p_txt}, {signif}."
     )
 
