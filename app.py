@@ -17,10 +17,10 @@ pages = {
         st.Page("app_pages/3_Notes_vs_Nutrition.py", title="3. Notes vs Nutrition", icon=":material/star:"),
         st.Page("app_pages/4_Alternatives_Saines.py", title="4. Alternatives Saines", icon=":material/health_and_safety:"),
     ],
-    "Outils": [
-        st.Page("app_pages/5_Explorer_BI.py", title="Explorer (BI)", icon=":material/query_stats:"),
-    ]
 }
+# app_pages/5_Explorer_BI.py (PyGWalker) est conservé dans le dépôt mais retiré
+# de la navigation : l'exploration libre par glisser-déposer expose les noms
+# de colonnes bruts et sort du parcours diagnostic -> décision (JOURNAL_IA.md).
 
 pg = st.navigation(pages)
 pg.run()

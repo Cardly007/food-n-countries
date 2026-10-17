@@ -53,3 +53,14 @@
 - Alternative(s) envisagée(s) et écartée(s), pourquoi : corriger le pipeline — interdit par le brief, signalé ici.
 - Version finale et justification : `country_summary()` recalcule les parts sur les seules recettes renseignées et garde le nombre de valeurs manquantes ; `spearman()` retire les lignes incomplètes et renvoie l'effectif réel.
 - Décision : modifié (à reporter dans le pipeline si le propriétaire le souhaite).
+
+---
+
+## Corrections transverses
+
+### Navigation — page « Explorer (BI) » (PyGWalker)
+- État initial : section « Outils » du menu latéral avec un explorateur PyGWalker sur les tables brutes.
+- Critique : l'outil affiche les noms de colonnes bruts et laisse construire n'importe quel graphique (camemberts, double axe…) sans garde-fou, hors du fil diagnostic → test → hypothèse → décision (Séances 3 et 4).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : supprimer le fichier — écarté (le brief demande de le garder) ; le laisser dans un expander de la Méthodologie — écarté, l'import de PyGWalker alourdit le chargement de la page.
+- Version finale et justification : page retirée de `app.py`, fichier `app_pages/5_Explorer_BI.py` conservé hors navigation. `pygwalker` reste dans `requirements.txt` car ce fichier l'importe toujours.
+- Décision : écarté de la navigation.
