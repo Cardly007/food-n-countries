@@ -40,6 +40,9 @@ CATEGORICAL = [
 
 # Séquentielle : une seule teinte (ordre de grandeur uniquement).
 SEQUENTIAL = "Blues"
+# Variante éclaircie pour les heatmaps annotées : le texte sombre reste
+# lisible même sur les cases les plus foncées (contraste).
+SEQUENTIAL_LIGHT = [[0.0, "#F7FBFF"], [0.5, "#9ECAE1"], [1.0, "#4292C6"]]
 
 # Mise en évidence : gris neutre pour le fond, orange pour ce qui compte.
 NEUTRAL = "#BDBDBD"

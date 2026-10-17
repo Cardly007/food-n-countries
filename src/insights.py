@@ -81,6 +81,31 @@ def deduplicated_total(overlap: pd.Series) -> int:
 # Axe 1 — base d'ingrédients
 # ---------------------------------------------------------------------------
 
+# Rapport « pays le plus représenté / pays médian » sous lequel on considère
+# qu'aucun pays ne domine l'offre.
+DOMINANCE_RATIO = 1.5
+
+
+def build_insight_title_axe1_counts(by_country: pd.DataFrame, top_k: int = 3) -> tuple[str, str]:
+    """Titre du classement des pays par nombre de recettes."""
+    ranked = rank_countries(by_country)
+    top = ranked.head(top_k)
+    ratio = ranked["n_recipes"].max() / ranked["n_recipes"].median()
+    names = _join_fr([country_label(c) for c in top["country"]])
+    if ratio < DOMINANCE_RATIO:
+        title = (f"Aucun pays ne domine : {names} en tête, avec {fmt_int(ranked['n_recipes'].max())} "
+                 f"recettes contre {fmt_int(ranked['n_recipes'].median())} pour un pays médian")
+    else:
+        title = f"{names} concentrent l'offre de recettes étiquetées par pays"
+    subtitle = f"Orange = les {top_k} pays en tête, signalés aussi sur la carte"
+    return title, subtitle
+
+
+def rank_countries(by_country: pd.DataFrame) -> pd.DataFrame:
+    """Classement déterministe : nombre de recettes décroissant, puis nom."""
+    return by_country.sort_values(["n_recipes", "country"], ascending=[False, True]).reset_index(drop=True)
+
+
 def staple_spread(staples: pd.DataFrame, countries: list[str]) -> pd.DataFrame:
     """Par ingrédient : fréquence min / max / moyenne entre les pays choisis, et écart."""
     sub = staples[staples["country"].isin(countries)]
@@ -123,9 +148,9 @@ def build_insight_title_axe1(spread: pd.DataFrame, n_countries: int) -> tuple[st
     # Sous-titre : l'ingrédient le plus homogène et le plus variable, chiffrés.
     lo, hi = spread.iloc[0], spread.iloc[-1]
     parts = [
-        f"Le plus homogène : {ingredient_label(lo.ingredient)} "
+        f"Écart le plus faible : {ingredient_label(lo.ingredient)} "
         f"(de {fmt_pct(lo.freq_min)} à {fmt_pct(lo.freq_max)} des recettes selon le pays)",
-        f"le plus variable : {ingredient_label(hi.ingredient)} "
+        f"le plus fort : {ingredient_label(hi.ingredient)} "
         f"(de {fmt_pct(hi.freq_min)} à {fmt_pct(hi.freq_max)})",
     ]
     subtitle = " ; ".join(parts)

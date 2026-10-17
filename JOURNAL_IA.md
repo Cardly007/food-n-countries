@@ -135,3 +135,91 @@ réellement. Trois constats ont orienté la suite :
   L'avertissement technique sur la colonne `country` est déplacé en
   Méthodologie (lien en bas de page).
 - Décision : modifié.
+
+## Page 1 — Carte & ingrédients (`app_pages/1_Carte.py`)
+
+### Page 1 — message clé (titre-insight)
+- Formule : texte composé de deux valeurs calculées (nombre d'étiquettes
+  distinctes dans `cuisines`, nombre de pays cartographiables) et du titre
+  produit par `build_insight_title_axe1` pour les pays comparés.
+- Pourquoi : le fil prévoyait « l'étiquette promet la diversité » ; le
+  message pose la question puis donne la réponse **calculée**, qui est
+  aujourd'hui « ces ingrédients de base varient nettement d'un pays à
+  l'autre ». Ce résultat nuance le fil : la diversité des ingrédients est
+  réelle, la convergence apparaît plutôt sur le profil nutritionnel (page 2).
+
+### Page 1 — carte choroplèthe
+- État initial : choroplèthe avec menu déroulant de 8 indicateurs, palette
+  `OrRd` (rouge) pour certains, `Blues` pour d'autres, noms de colonnes
+  bruts dans le titre (`pct_exceeds_calories`…).
+- Critique : une carte sert à **localiser** (Séance 4) ; l'utiliser pour
+  comparer des pourcentages précis est inadapté (intensité de couleur =
+  ordre de grandeur seulement, Séance 2). Palette changeante d'un indicateur
+  à l'autre (cohérence, Séance 3). Rouge à éviter (Séance 2).
+- Alternative(s) envisagée(s) et écartée(s) : garder le sélecteur
+  d'indicateurs, écarté (pas de message unique, lecture non guidée) ; carte
+  à symboles proportionnels, écartée (les effectifs sont trop proches les
+  uns des autres pour que la taille porte un message).
+- Version finale et justification : une seule variable (nombre de
+  recettes), échelle séquentielle une teinte (`Blues`) partant de 0,
+  **annotation** en orange des 3 pays en tête. Les 456 recettes non
+  cartographiables sont signalées dans le sous-titre et détaillées dans un
+  expander, avec libellés lisibles (données manquantes visibles, Séance 3).
+- Décision : modifié.
+
+### Page 1 — classement des pays (nouveau)
+- État initial : inexistant.
+- Critique : la carte ne permet pas de comparer précisément les effectifs
+  (Séance 2 : position/longueur > couleur).
+- Version finale et justification : barres horizontales triées des 15 pays
+  les plus représentés, axe à zéro, valeurs affichées en bout de barre,
+  gris neutre + orange sur les 3 pays en tête (les mêmes que ceux annotés
+  sur la carte : l'accent relie les deux vues).
+- Titre-insight : `build_insight_title_axe1_counts`. Formule : rapport
+  `max(n_recipes) / médiane(n_recipes)`. Seuil : < 1,5 → « Aucun pays ne
+  domine : … en tête, avec X recettes contre Y pour un pays médian » ;
+  sinon → « … concentrent l'offre ». Valeur actuelle : 67 / 45 ≈ 1,49.
+  Le titre cite les deux effectifs plutôt qu'un adjectif (« à peine plus »,
+  envisagé puis écarté car il minimisait un écart de près de 50 %).
+- Décision : créé.
+
+### Page 1 — comparatif d'ingrédients
+- État initial : barres groupées, 8 pays par défaut (8 couleurs Plotly
+  automatiques), 11 ingrédients en anglais, soit 88 barres.
+- Critique : bien au-delà de ~6 couleurs (Séance 2) ; couleurs non fixes
+  par pays (Séance 3) ; impossible de voir en 5 secondes si les pays se
+  ressemblent (Séance 4) ; libellés en anglais.
+- Alternative(s) envisagée(s) et écartée(s) : heatmap pays × ingrédient
+  comme graphique principal (piste du brief), écartée en graphique principal
+  car l'intensité de couleur ne donne qu'un ordre de grandeur (Séance 2) ;
+  **conservée comme vue d'ensemble** dans « Aller plus loin » (12 pays,
+  échelle `Blues` éclaircie pour garder le texte lisible, valeurs écrites
+  dans les cases).
+- Version finale et justification : diagramme en points (« dot plot »), une
+  ligne par ingrédient, un point par pays (4 cuisines emblématiques par
+  défaut : Italie, Chine, Inde, France, couleurs fixes), trait gris entre le
+  minimum et le maximum. La **position** porte la comparaison ; la longueur
+  du trait gris montre directement l'écart entre pays. Ingrédients triés du
+  plus homogène au plus variable ; axe 0–100 %. Sélecteur limité aux 5
+  cuisines à couleur fixe (cohérence des couleurs).
+- Titre-insight : `build_insight_title_axe1`. Formule : pour chaque
+  ingrédient, `écart = max − min` de la part de recettes qui le contiennent,
+  entre les pays comparés. Seuils : « commun » si écart ≤ 25 points et
+  fréquence moyenne ≥ 20 % ; « distinctif » si écart ≥ 40 points. Bascule :
+  au moins la moitié des ingrédients communs → « Les mêmes ingrédients de
+  base reviennent d'un pays à l'autre » ; communs et distinctifs → « X et Y
+  reviennent partout ; Z distingue davantage les pays » ; aucun commun →
+  « Ces ingrédients de base varient nettement d'un pays à l'autre ».
+  Sous-titre : ingrédients à l'écart le plus faible et le plus fort, chiffrés.
+  Valeur actuelle : aucun ingrédient commun (le sucre, à 29 points, est
+  juste au-dessus du seuil), d'où la formulation « varient nettement ».
+  Les seuils sont des valeurs rondes fixées a priori et **n'ont pas été
+  ajustés** pour obtenir le message attendu.
+- Décision : modifié.
+
+### Transverse — couleur primaire Streamlit
+- Constat à la relecture visuelle : les puces du sélecteur de pays
+  apparaissaient en rouge (couleur primaire par défaut de Streamlit).
+- Version finale : `.streamlit/config.toml` fixe la couleur primaire au bleu
+  Okabe-Ito `#0072B2`.
+- Décision : modifié.
