@@ -39,13 +39,17 @@ src/
                                 cartographiables)
   ingredients.py             -> détection d'ingrédients par mot-clé
   nutrition.py                -> seuils nutritionnels et critères "sain"
+  theme.py                    -> gabarit Plotly, palettes, couleurs pays, kpi, chart_title
+  insights.py                 -> indicateurs et titres-insights calculés (build_insight_title_*)
+  story.py                    -> parcours guidé (étape X sur 4, bouton « Suite → »)
+JOURNAL_IA.md                -> journal des propositions de l'IA (livrable)
 app.py                       -> page d'accueil / problématique
 pages/
   1_Carte.py                 -> Axe 1 : diversité géographique
   2_Profil_Nutritionnel.py   -> Axe 2 : profil diététique mondialisé
   3_Notes_vs_Nutrition.py    -> Axe 3 : biais d'évaluation
   4_Alternatives_Saines.py   -> Axe 4 : alternatives saines
-  5_Explorer_BI.py            -> iframe d'un dashboard BI externe (à publier)
+  5_Explorer_BI.py            -> exploration libre PyGWalker (hors navigation dans la variante grand public)
   6_Methodologie.py            -> limites du dataset, pour le journal de bord
 ```
 

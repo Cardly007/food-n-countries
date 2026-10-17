@@ -407,3 +407,46 @@ réellement. Trois constats ont orienté la suite :
   passent le filtre « saine » ; c'est une conséquence de l'absence de
   colonne catégorie, signalée en Méthodologie.
 - Décision : modifié.
+
+## Page Méthodologie (`app_pages/6_Methodologie.py`)
+
+### Méthodologie — textes et chiffres
+- État initial : plusieurs chiffres écrits en dur, dont un **faux** :
+  « 8 des 49 valeurs (396 recettes, 18 %) » alors que les données donnent
+  456 recettes (21 % de la table `cuisines`) ; titre « 16 644 recettes »
+  qui additionne deux tables en recouvrement.
+- Critique : un chiffre écrit en dur se périme dès que les données changent
+  et ne peut pas être vérifié (règle 4 du brief).
+- Version finale et justification : structure conservée (sections 1 à 7,
+  matière du journal de bord), tous les chiffres recalculés (total
+  dédupliqué et sa formule, recettes non cartographiables, seuils lus dans
+  `src/nutrition.py`, taille d'échantillon lue dans `src/insights.py`).
+  Ajouts : section 6 (échantillon des nuages de points), section 8 (tableau
+  des règles de prudence des titres, seuils lus dans `src/insights.py`),
+  section 9 (page d'exploration libre hors navigation). Libellés lisibles à
+  la place des noms de colonnes.
+- Décision : modifié.
+
+## Points à valider avec le propriétaire du projet
+
+1. **Fil narratif de l'étape 3.** Le brief annonçait « les notes semblent
+   récompenser les recettes riches ». Les données disent l'inverse (lien
+   très faible, ρ ≈ 0,03 et −0,05). Les titres le disent ; le titre de page
+   reste la question « … et la communauté note-t-elle mieux les recettes
+   riches ? » et la réponse calculée est « Pas vraiment ». À confirmer : ce
+   « non » sert-il le message (sensibiliser : les notes ne guident pas vers
+   l'équilibre, mais ne l'empêchent pas non plus) ?
+2. **Étape 1 nuancée.** Les ingrédients de base varient nettement d'un pays
+   à l'autre (beurre de 2 % à 65 % des recettes). La ressemblance apparaît
+   surtout sur le profil nutritionnel (étape 2). Le message central de
+   l'accueil repose donc sur l'axe 2.
+3. **Seuils de bascule** (±20 %, 25 / 40 points, |ρ| 0,10 / 0,30, 0,05
+   étoile, ratio 1,5) : valeurs rondes à confirmer.
+4. **Couleurs fixes** attribuées à 5 cuisines emblématiques (Italie, Chine,
+   Inde, France, Japon) plutôt qu'aux 5 pays les plus représentés (dont les
+   effectifs sont quasi identiques, 65–67 recettes) : choix de lisibilité
+   pour le grand public.
+5. **Nuages de points** : une version agrégée (note moyenne par tranche de
+   calories) serait plus lisible ; conservés tels que demandés.
+6. **Repère « 2 000 kcal par jour »** : référence nutritionnelle générale
+   écrite dans le texte (ce n'est pas un chiffre issu des données).

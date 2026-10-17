@@ -42,6 +42,7 @@ CONVERGENCE_MAJORITY = 0.50   # ≥ 50 % : « la plupart »
 RHO_VERY_WEAK = 0.10
 RHO_WEAK = 0.30
 ALPHA = 0.05
+SCATTER_SAMPLE_SIZE = 3000    # points affichés dans chaque nuage (calculs sur toutes les recettes)
 RATING_DIFF_NEGLIGIBLE = 0.05  # écart de note moyenne < 0,05 étoile : « quasi identique »
 
 # Axe 4 — effectif minimal pour afficher le pourcentage d'un pays.

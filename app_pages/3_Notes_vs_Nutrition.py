@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.insights import (
+    SCATTER_SAMPLE_SIZE,
     build_insight_title_axe3, build_insight_title_comfort, build_key_message_axe3,
     comfort_comparison, spearman_summary,
 )
@@ -13,7 +14,7 @@ from src.theme import (
 )
 
 STEP = 3
-SAMPLE_SIZE = 3000
+SAMPLE_SIZE = SCATTER_SAMPLE_SIZE
 DEFAULT_MIN_RATINGS = 10
 X_CLIP_QUANTILE = 0.99        # l'axe X s'arrête au 99e centile (lisibilité)
 POPULATIONS = {

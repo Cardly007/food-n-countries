@@ -1,85 +1,127 @@
 import streamlit as st
-from src.load_data import load_processed
+
+from src import insights as ins
 from src.country_mapping import get_mapping_df
+from src.load_data import load_processed
+from src.nutrition import HEALTHY_CRITERIA, THRESHOLDS
+from src.theme import MAP_TYPE_LABELS, country_label, fmt_int, fmt_num, fmt_pct
 
 st.title("Méthodologie et limites")
 
 st.markdown(
-    """
-Cette page centralise les choix méthodologiques et leurs limites — à
-réutiliser directement dans le Journal de bord (section "Audit et critique
-visuelle").
-"""
+    "Cette page rassemble les choix de calcul et les limites des données. "
+    "Tous les chiffres ci-dessous sont recalculés à partir des données."
 )
 
-st.subheader("1. Deux tables, pas une seule population de 16 644 recettes")
 overlap = load_processed("overlap_stats").iloc[0]
-st.write(
-    f"`all_recipes.csv` contient {overlap.n_all_recipes:,.0f} recettes, "
-    f"`cuisines.csv` en contient {overlap.n_cuisines:,.0f}. Seules "
-    f"{overlap.n_overlap:,.0f} recettes ({overlap.pct_cuisines_in_all_recipes:.1%} "
-    f"de `cuisines.csv`) existent dans les deux (jointure sur l'URL). "
-    f"**Ce ne sont donc pas des sous-ensembles l'un de l'autre** : on ne "
-    f"peut pas dire \"les 14 426 recettes, dont 2 218 catégorisées par pays\".".replace(",", " ")
-)
+cuisines = load_processed("cuisines_enriched")
+n_dedup = ins.deduplicated_total(overlap)
 
-st.subheader("2. La colonne `country` n'est pas une liste de pays")
+st.subheader("1. Deux tables qui se recoupent : un total dédupliqué")
 st.markdown(
-    "8 des 49 valeurs de `country` (396 recettes, 18 % de `cuisines.csv`) "
-    "ne correspondent pas à un pays unique et sont exclues de la carte "
-    "choroplèthe (voir `src/country_mapping.py`) :"
-)
-mapping = get_mapping_df()
-st.dataframe(
-    mapping[mapping["map_type"] != "single_country"].sort_values("map_type"),
-    width='stretch', hide_index=True,
+    f"Les recettes viennent de deux tables du site Allrecipes : {fmt_int(overlap.n_all_recipes)} "
+    f"recettes générales et {fmt_int(overlap.n_cuisines)} recettes classées par cuisine. "
+    f"{fmt_int(overlap.n_overlap)} recettes ({fmt_pct(overlap.pct_cuisines_in_all_recipes, 1)} de la "
+    f"seconde table) figurent dans les deux (même adresse web). Additionner les deux tables "
+    f"compterait ces recettes deux fois : le total affiché à l'accueil est donc "
+    f"{fmt_int(overlap.n_all_recipes)} + {fmt_int(overlap.n_cuisines)} − {fmt_int(overlap.n_overlap)} "
+    f"= **{fmt_int(n_dedup)} recettes distinctes**."
 )
 
-st.subheader("3. Pas de colonne sucre ni catégorie de plat")
+st.subheader("2. L'étiquette « pays » n'est pas toujours un pays")
+mapping = get_mapping_df()
+not_country = mapping[mapping["map_type"] != "single_country"]
+n_not_country = int((cuisines["map_type"] != "single_country").sum())
+st.markdown(
+    f"{len(not_country)} des {cuisines['country'].nunique()} étiquettes de cuisine "
+    f"({fmt_int(n_not_country)} recettes, {fmt_pct(n_not_country / len(cuisines))} des recettes classées "
+    "par cuisine) ne correspondent pas à un pays unique. Elles sont exclues de la carte et des "
+    "comparaisons entre pays, mais comptées dans les totaux (voir `src/country_mapping.py`) :"
+)
+st.dataframe(
+    not_country.assign(
+        etiquette=not_country["country"].map(country_label),
+        type=not_country["map_type"].map(MAP_TYPE_LABELS),
+    ).sort_values("type")[["etiquette", "type"]],
+    column_config={"etiquette": "Étiquette", "type": "Type d'étiquette"},
+    width="stretch", hide_index=True,
+)
+
+st.subheader("3. Ni sucre, ni catégorie de plat")
 st.markdown(
     """
-- Les seules variables nutritionnelles disponibles sont `calories`, `fat`,
-  `carbs`, `protein` (par portion). **Il n'y a pas de colonne sucre** : les
-  analyses sur le sucre utilisent soit `carbs` comme proxy, soit une
-  détection par mot-clé dans le texte libre `ingredients`
-  (`src/ingredients.py`, `SUGAR_KEYWORDS`).
-- **Il n'y a pas de colonne catégorie** (dessert / plat principal /
-  entrée...). Une différence de profil nutritionnel entre deux pays peut
-  donc refléter une différence de composition du corpus (plus ou moins de
-  desserts) plutôt qu'une vraie différence culinaire nationale.
+- Les seules valeurs nutritionnelles disponibles sont les calories, les lipides, les glucides
+  et les protéines, **par portion**. Il n'y a pas de mesure du sucre : les glucides servent
+  d'indice, et certains ingrédients sont repérés par mot-clé dans la liste des ingrédients
+  (`src/ingredients.py`).
+- Il n'y a **pas de catégorie** (dessert, plat, boisson…). Une différence entre deux pays peut
+  venir de la composition de leurs recettes (plus ou moins de desserts) plutôt que de leur
+  cuisine. Exemple observé : des cocktails passent le filtre « sain et bien noté » de la page 4.
 """
 )
 
-st.subheader("4. Comptage d'ingrédients : une approximation, pas une mesure exacte")
+st.subheader("4. Ingrédients : un repérage par mot-clé")
 st.markdown(
     """
-Le champ `ingredients` est une liste jointe par `", "`, mais certains items
-contiennent eux-mêmes une virgule interne (ex : `"margarine, softened"` est
-un seul ingrédient, pas deux). Le nombre d'items calculé par
-`nombre de virgules + 1` (`approx_n_items`) **surestime légèrement** le
-vrai nombre d'ingrédients. À utiliser en **comparaison relative entre
-pays**, jamais comme un chiffre absolu présenté seul.
+La liste des ingrédients est un texte libre, séparé par des virgules, dont certains éléments
+contiennent eux-mêmes une virgule (« margarine, softened » est un seul ingrédient). On ne compte
+donc pas les ingrédients : on repère la **présence** de quelques ingrédients de base par
+mot-clé. Le nombre d'ingrédients approximatif (virgules + 1) surestime le vrai nombre et ne sert
+qu'à comparer des pays entre eux.
 """
 )
 
 st.subheader("5. Seuils nutritionnels")
 st.markdown(
-    """
-Les seuils utilisés (`src/nutrition.py`) sont des repères indicatifs (base
-~2000 kcal/jour pour un adulte), pas des normes cliniques ou OMS
-appliquées littéralement. Ils sont volontairement paramétrables et modifiés
-en direct sur la page **Alternatives saines** pour que le choix de seuil
-soit assumé plutôt que subi.
+    f"Repères indicatifs par portion, pour un adulte à environ 2 000 kcal par jour, pas des normes "
+    f"médicales (`src/nutrition.py`) :\n"
+    f"- page 2, « au-delà du seuil » : plus de {THRESHOLDS['calories_high']} kcal, "
+    f"plus de {THRESHOLDS['fat_high_g']} g de lipides ;\n"
+    f"- page 4, « sain et bien noté » (par défaut, réglable) : au plus "
+    f"{HEALTHY_CRITERIA['calories_max']} kcal, au plus {HEALTHY_CRITERIA['fat_max_g']} g de lipides, "
+    f"note d'au moins {fmt_num(HEALTHY_CRITERIA['min_rating'], 1)} avec au moins "
+    f"{HEALTHY_CRITERIA['min_total_ratings']} avis."
+)
+
+st.subheader("6. Nuages de points : un échantillon affiché, un calcul sur tout")
+st.markdown(
+    "Pour rester lisibles, les nuages de points de la page 3 n'affichent qu'un **échantillon "
+    f"aléatoire de {fmt_int(ins.SCATTER_SAMPLE_SIZE)} recettes** (tirage fixe, reproductible). La droite de tendance et la "
+    "corrélation sont calculées sur **toutes** les recettes retenues ; le nombre total est "
+    "indiqué au-dessus des graphiques."
+)
+
+st.subheader("7. Corrélation ≠ causalité")
+st.markdown(
+    "Un lien entre la note et la richesse d'une recette ne dirait pas que les internautes "
+    "« récompensent » les plats riches : il pourrait venir des desserts, ou du fait que seules "
+    "les recettes qui plaisent reçoivent beaucoup d'avis. Les titres n'emploient donc jamais de "
+    "formulation causale (« va de pair avec », « lien »)."
+)
+
+st.subheader("8. Règles de prudence des titres")
+st.markdown(
+    f"""
+Chaque titre-insight est **calculé** par une fonction (`src/insights.py`) qui choisit sa
+formulation selon la valeur obtenue. Si les chiffres ne soutiennent pas le message attendu, le
+titre le dit.
+
+| Page | Indicateur | Bascule entre formulations |
+|---|---|---|
+| Accueil, page 2 | part des pays (≥ {ins.MIN_RECIPES_PER_COUNTRY} recettes) dont la médiane est à ±{fmt_pct(ins.CONVERGENCE_BAND)} de la médiane globale | ≥ {fmt_pct(ins.CONVERGENCE_STRONG)} « très proches », ≥ {fmt_pct(ins.CONVERGENCE_MAJORITY)} « la plupart », sinon « contrastés » |
+| Page 1 | écart de fréquence d'un ingrédient entre pays | ≤ {fmt_num(ins.COMMON_SPREAD_MAX * 100, 0)} points : commun ; ≥ {fmt_num(ins.DISTINCT_SPREAD_MIN * 100, 0)} points : distinctif |
+| Page 1 | pays le plus représenté / pays médian | < {fmt_num(ins.DOMINANCE_RATIO, 1)} : « aucun pays ne domine » |
+| Page 3 | corrélation de rang (Spearman) | \\|ρ\\| < {fmt_num(ins.RHO_VERY_WEAK, 2)} ou non significatif : « lien très faible » ; < {fmt_num(ins.RHO_WEAK, 2)} : « légèrement » |
+| Page 3 | écart de note avec / sans ingrédients « réconfort » | < {fmt_num(ins.RATING_DIFF_NEGLIGIBLE, 2)} étoile ou non significatif : « quasi identiques » |
+| Page 4 | part de recettes saines et bien notées par pays (≥ {ins.MIN_RECIPES_AXE4} recettes) | pays en tête nommés ; message adapté si aucune recette ne passe |
+
+Ces seuils sont des valeurs rondes fixées à l'avance ; ils n'ont pas été ajustés pour obtenir
+un message donné. Le détail de chaque choix est consigné dans `JOURNAL_IA.md`.
 """
 )
 
-st.subheader("6. Corrélation ≠ causalité (Axe 3)")
+st.subheader("9. Exploration libre")
 st.markdown(
-    """
-Une corrélation positive entre note et densité calorique/lipidique ne
-démontre pas que les utilisateurs "récompensent" la malbouffe : elle peut
-refléter une sur-représentation des desserts et plats riches parmi les
-recettes les plus commentées, ou un biais de sélection (seules les
-recettes qui plaisent reçoivent beaucoup d'avis).
-"""
+    "Une page d'exploration libre (`app_pages/5_Explorer_BI.py`, outil PyGWalker) existe dans le "
+    "projet mais n'apparaît pas dans le menu : cette version de l'application suit un parcours guidé."
 )
