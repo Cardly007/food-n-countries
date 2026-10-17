@@ -176,3 +176,28 @@
 - Version finale et justification : conservé, reformulé sans nom de colonne.
 - Critique / alternatives : aucune.
 - Décision : conservé.
+
+---
+
+## Axe 4 — Décision (`app_pages/4_Alternatives_Saines.py`)
+
+### Axe 4 — KPI « recettes saines et bien notées »
+- État initial : 2 `st.metric` avec `delta` (« x % du total ») affiché en vert avec une flèche.
+- Critique : flèche verte = évolution positive, alors qu'il s'agit d'une part du total ; opposition implicite vert / rouge (Séances 2 et 3).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : jauge — écartée, encre décorative pour un seul nombre (Séance 3).
+- Version finale et justification : 4 filtres conservés (libellés avec unités) ; 2 KPI au format `kpi` : nombre, part du total en sous-titre, nombre de recettes non évaluables (valeur manquante) en aide.
+- Décision : modifié.
+
+### Axe 4 — part de recettes saines par pays (`build_country_bars`)
+- État initial : barres verticales colorées uniformément, libellés de pays en abscisse, effectifs seulement au survol.
+- Critique : 37 libellés verticaux illisibles ; aucune hiérarchie visuelle alors que la question est « quels pays en tête ? » (Séance 3, la couleur sert la tâche) ; effectifs invisibles alors qu'une part sur 18 recettes n'a pas le poids d'une part sur 65.
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : carte choroplèthe — écartée, déjà présente à l'axe 1 et moins précise (Séance 2) ; barres empilées « saines / autres » — écartées, l'empilement complique la lecture de la part ; accent sur les pays au-dessus de la moyenne — écarté ici au profit des N premiers, plus directement actionnable pour une mise en avant éditoriale.
+- Version finale et justification : barres horizontales triées, axe à 0, **gris neutre + accent orange sur les 5 premiers pays**, « retenues / total » écrit au bout de chaque barre, seuil de 15 recettes minimum par pays conservé et rappelé (nombre de pays exclus calculé).
+- Décision : modifié.
+
+### Axe 4 — tableau des recettes candidates (nouveau, conclusion de la variante)
+- État initial : `st.dataframe` brut dans un expander (colonnes `name`, `avg_rating`…), trié par note seulement, URL en texte brut.
+- Critique : la partie « décision » était cachée et non actionnable ; noms de colonnes bruts (Séance 3).
+- Alternative(s) envisagée(s) et écartée(s), pourquoi : « top 10 » figé en graphique — écarté, le responsable éditorial doit pouvoir filtrer et construire sa propre sélection ; inclure les recettes générales sans pays — écarté, elles ne répondent pas à l'objectif « diversité culinaire ».
+- Version finale et justification : tableau visible en conclusion, mêmes seuils que les filtres du haut, tri par note puis nombre d'avis, filtres par pays et par nom, option pour inclure les étiquettes non nationales (Tex-Mex, Soul food…), libellés avec unités, lien cliquable « Ouvrir la recette », export CSV de la sélection.
+- Décision : créé.
