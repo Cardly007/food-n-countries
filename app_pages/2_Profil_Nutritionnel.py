@@ -59,10 +59,10 @@ with tab2:
 
 st.divider()
 st.warning(
-    "⚠️ Rappel : il n'y a pas de colonne `category` (dessert / plat "
+    "Rappel : il n'y a pas de colonne `category` (dessert / plat "
     "principal...) dans ce dataset. Un pays surreprésenté en desserts aura "
     "mécaniquement plus de recettes riches en glucides, sans que cela "
     "traduise une spécificité culinaire nationale. À signaler comme limite "
     "à l'oral plutôt que comme conclusion définitive.",
-    icon="⚠️",
+    icon=":material/warning:",
 )

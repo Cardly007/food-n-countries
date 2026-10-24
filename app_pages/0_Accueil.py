@@ -47,11 +47,6 @@ try:
         overlap = load_processed("overlap_stats").iloc[0]
         col1.metric("Recettes générales (Sans pays)", f"{overlap.n_all_recipes:,.0f}".replace(",", " "))
         col2.metric("Recettes avec pays (cuisines.csv)", f"{overlap.n_cuisines:,.0f}".replace(",", " "))
-        col3.metric(
-            "Chevauchement entre les deux",
-            f"{overlap.pct_cuisines_in_all_recipes:.0%}",
-            help="Part des recettes de cuisines.csv qui existent aussi dans all_recipes.csv (jointure sur l'URL)."
-        )
 except FileNotFoundError as e:
     st.error(str(e))
 
@@ -75,6 +70,6 @@ st.markdown(
 
 if not use_ai:
     st.info(
-        "⚠️ **Limite méthodologique** : La version de base du dataset mélange des nationalités et des catégories floues (Soul Food). Activez le mode **'Dataset IA Enrichi'** dans le menu de gauche pour corriger ce biais avec 16 000 recettes propres !",
+        "**Limite méthodologique** : La version de base du dataset mélange des nationalités et des catégories floues (Soul Food). Activez le mode **'Dataset IA Enrichi'** dans le menu de gauche pour corriger ce biais avec 16 000 recettes propres !",
         icon=":material/warning:",
     )
