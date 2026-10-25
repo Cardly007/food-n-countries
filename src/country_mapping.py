@@ -112,3 +112,78 @@ def attach_iso3(cuisines_df: pd.DataFrame) -> pd.DataFrame:
             f"{sorted(unknown)}. Ajoutez-les à src/country_mapping.py."
         )
     return cuisines_df.merge(mapping, on="country", how="left")
+
+
+# ---------------------------------------------------------------------------
+# Rattachement à un continent (axe 1 : couverture du catalogue).
+#
+# 43 catégories sur 49 sont rattachées à un continent. Les 6 autres sont des
+# traditions régionales ou communautaires (dont 5 enracinées aux États-Unis)
+# qu'on ne peut pas rapporter à une population continentale : elles restent
+# dans les axes 2, 3 et 4 mais pas dans la comparaison par continent.
+# Les Caraïbes (Cuba, Jamaïque, Porto Rico) sont comptées en Amérique du
+# Nord, comme dans le tableau de population du cours.
+# ---------------------------------------------------------------------------
+CONTINENTS = {
+    "Asie": [
+        "Filipino", "Chinese", "Indian", "Japanese", "Vietnamese", "Thai",
+        "Korean", "Lebanese", "Persian", "Turkish", "Pakistani", "Malaysian",
+        "Indonesian", "Israeli", "Bangladeshi",
+    ],
+    "Europe": [
+        "Russian", "French", "Italian", "Greek", "German", "Spanish", "Polish",
+        "Portuguese", "Danish", "Swedish", "Norwegian", "Dutch", "Austrian",
+        "Finnish", "Swiss", "Belgian", "Scandinavian",
+    ],
+    "Amérique du Nord": ["Canadian", "Cuban", "Jamaican", "Puerto Rican"],
+    "Amérique du Sud": ["Brazilian", "Peruvian", "Argentinian", "Chilean", "Colombian"],
+    "Afrique": ["South African"],
+    "Océanie": ["Australian and New Zealander"],
+}
+NO_CONTINENT = [
+    "Amish and Mennonite", "Cajun and Creole", "Jewish", "Soul Food",
+    "Southern Recipes", "Tex-Mex",
+]
+
+# Pays « présents » sur la carte : en plus des 41 catégories single_country,
+# la catégorie « Australian and New Zealander » couvre deux pays entiers.
+# (« Scandinavian » reste hors carte : ses pays ont déjà leur propre catégorie
+# sauf l'Islande, et l'étiquette ne dit pas lesquels sont couverts.)
+EXTRA_MAP_ISO3 = {"Australian and New Zealander": ["AUS", "NZL"]}
+
+
+def get_continent(country: str) -> str | None:
+    for continent, members in CONTINENTS.items():
+        if country in members:
+            return continent
+    if country in NO_CONTINENT:
+        return None
+    raise ValueError(f"Catégorie sans rattachement continental documenté : {country}")
+
+
+# Libellés français affichés dans l'application (mêmes noms partout).
+CUISINE_LABELS_FR = {
+    "Canadian": "Canadienne", "Brazilian": "Brésilienne", "Filipino": "Philippine",
+    "Cuban": "Cubaine", "Chinese": "Chinoise", "Russian": "Russe",
+    "Indian": "Indienne", "French": "Française", "Italian": "Italienne",
+    "Japanese": "Japonaise", "Greek": "Grecque", "German": "Allemande",
+    "Vietnamese": "Vietnamienne", "Thai": "Thaïlandaise", "Spanish": "Espagnole",
+    "Polish": "Polonaise", "Korean": "Coréenne", "Portuguese": "Portugaise",
+    "Lebanese": "Libanaise", "Persian": "Persane", "Jamaican": "Jamaïcaine",
+    "Peruvian": "Péruvienne", "Turkish": "Turque", "Danish": "Danoise",
+    "Swedish": "Suédoise", "Argentinian": "Argentine", "Norwegian": "Norvégienne",
+    "Pakistani": "Pakistanaise", "Malaysian": "Malaisienne",
+    "Indonesian": "Indonésienne", "Israeli": "Israélienne", "Chilean": "Chilienne",
+    "Dutch": "Néerlandaise", "Austrian": "Autrichienne",
+    "South African": "Sud-africaine", "Finnish": "Finlandaise",
+    "Bangladeshi": "Bangladaise", "Colombian": "Colombienne", "Swiss": "Suisse",
+    "Belgian": "Belge", "Puerto Rican": "Portoricaine",
+    "Australian and New Zealander": "Australienne et néo-zélandaise",
+    "Scandinavian": "Scandinave",
+    "Soul Food": "Soul food (afro-américaine)",
+    "Cajun and Creole": "Cajun et créole (Louisiane)",
+    "Tex-Mex": "Tex-Mex",
+    "Southern Recipes": "Sud des États-Unis",
+    "Jewish": "Juive",
+    "Amish and Mennonite": "Amish et mennonite",
+}

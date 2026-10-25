@@ -1,0 +1,65 @@
+                              indicateur   calcule  controle  ecart_%       alerte
+                        Total dédupliqué 15,589.00 15,589.00     0.00             
+               Catégories single_country     41.00     41.00     0.00             
+                 Recettes single_country  1,762.00  1,762.00     0.00             
+    Catégories retenues (>= 15 recettes)     45.00     45.00     0.00             
+                       % population Asie     59.21     59.00     0.36             
+                    % population Afrique     17.90     18.00    -0.57             
+                     % population Europe      9.32      9.00     3.54             
+           % population Amérique du Nord      7.53      7.50     0.34             
+            % population Amérique du Sud      5.48      5.50    -0.35             
+                    % population Océanie      0.56      0.60    -5.93             
+                     % catégories Europe     39.53     40.00    -1.16             
+                       % catégories Asie     34.88     35.00    -0.33             
+            % catégories Amérique du Sud     11.63     12.00    -3.10             
+           % catégories Amérique du Nord      9.30      9.00     3.36             
+                    % catégories Afrique      2.33      2.00    16.28 ÉCART > 10 %
+                    % catégories Océanie      2.33      2.00    16.28 ÉCART > 10 %
+                        Recettes Belgian      6.00      6.00     0.00             
+                          Recettes Swiss     10.00     10.00     0.00             
+                      Recettes Colombian     11.00     11.00     0.00             
+                    Recettes Bangladeshi     12.00     12.00     0.00             
+               Soy sauce max (37 pays) %     81.54     82.00    -0.56             
+                   Cumin max (37 pays) %     68.00     68.00     0.00             
+                  Ginger max (37 pays) %     64.00     75.00   -14.67 ÉCART > 10 %
+                     Egg min (37 pays) %      1.54      2.00   -23.08 ÉCART > 10 %
+                     Egg max (37 pays) %     86.36     86.00     0.42             
+                 Egg médiane (37 pays) %     28.57     29.00    -1.48             
+                Similarité moyenne, tout      0.74      0.68     9.31             
+       Similarité moyenne, sans desserts      0.75      0.68     9.76             
+         Similarité famille Europe, tout      0.90      0.88     2.22             
+Similarité famille Europe, sans desserts      0.84      0.81     3.71             
+          Avis/recette médiane (41 pays)     50.63     51.00    -0.72             
+      Part des avis du top 5 (41 pays) %     35.63     36.00    -1.03             
+                      Avis/recette Greek    180.02    180.00     0.01             
+                     Avis/recette French    159.88    160.00    -0.08             
+                   Avis/recette Canadian    135.04    135.00     0.03             
+                       Avis/recette Thai    126.98    127.00    -0.01             
+                   Avis/recette Japanese    116.75    117.00    -0.22             
+                    Avis/recette Persian     16.56     17.00    -2.61             
+                    Avis/recette Chilean     19.82     20.00    -0.91             
+                 Note moyenne min (pays)      4.25      4.25     0.11             
+                 Note moyenne max (pays)      4.69      4.69     0.04             
+Corrélation ancienneté x avis (Spearman)     -0.05     -0.05    -8.99             
+              rho classement depuis 2022      0.99      0.98     1.01             
+                  % recettes depuis 2022     91.12     91.00     0.13             
+                    % desserts Pakistani      0.00      0.00      NaN             
+                     % desserts Austrian     77.27     70.00    10.39 ÉCART > 10 %
+
+Stabilité des familles (indice de Rand ajusté, 1 = partition identique) :
+  ari_liaison_complete         0.62
+  ari_liaison_weighted         1.00
+  ari_k4                       0.93
+  ari_k6                       0.77
+  ari_sans_desserts            0.57
+
+Familles :
+  1. Europe du Nord, centrale et de l'Est, et cuisines au profil pâtissier [farine, beurre, œuf] : Finnish, Swedish, Scandinavian, Danish, Norwegian, Austrian, Dutch, Australian and New Zealander, Jewish, Amish and Mennonite, German, South African, Brazilian, Chilean, Polish, Russian, Canadian, Southern Recipes, French
+  2. Tex-Mex [fromage, tomate, oignon] : Tex-Mex
+  3. Méditerranée, Moyen-Orient, Amérique latine et Sud des États-Unis [huile d'olive, ail, tomate] : Italian, Greek, Lebanese, Israeli, Spanish, Cuban, Puerto Rican, Portuguese, Turkish, Persian, Argentinian, Peruvian, Soul Food, Cajun and Creole
+  4. Asie du Sud [gingembre, cumin, ail] : Pakistani, Indian
+  5. Asie de l'Est et du Sud-Est [sauce soja, gingembre, ail] : Thai, Vietnamese, Indonesian, Malaysian, Jamaican, Filipino, Korean, Chinese, Japanese
+
+Validation du type de plat : {'n_echantillon': 100.0, 'n_erreurs': 9.0, 'n_ambigus': 2.0, 'taux_erreur': 0.09, 'taux_erreur_avec_ambigus': 0.11, 'ic95_bas': 0.04807199516388488, 'ic95_haut': 0.16226374696643667, 'n_erreurs_ajustement': 12.0, 'n_desserts_manques': 6.0}
+
+OK — fichiers écrits dans /home/user/food-n-countries/data/processed
