@@ -78,6 +78,35 @@ quelles cuisines ajouter ou mettre en avant.
   valeur dans chaque case (Séance 4, exercice 6) pour éviter un second
   graphique en barres.
 
+### 1.3 bis Traditions régionales rattachées à leur territoire (retour de l'équipe)
+
+Première version : les 7 catégories non nationales (soul food, cajun et
+créole, Sud des États-Unis, amish, Tex-Mex, juive, scandinave) étaient
+« non cartographiables » et hors comparaison par continent. Retour de
+l'équipe : elles ont un territoire d'origine, il faut en tenir compte.
+
+Décision : bascule **« Inclure les traditions régionales »** (activée par
+défaut) sur la page 1, qui pilote la carte et les flèches.
+- Rattachements (`REGIONAL_ZONES`) : traditions américaines et amish →
+  États-Unis ; Tex-Mex → États-Unis **et** Mexique ; Scandinave →
+  Danemark, Norvège, Suède ; juive non rattachée (diaspora, Israël a déjà
+  sa catégorie).
+- Carte à **trois états** plutôt que deux : orange = catégorie nationale ;
+  orange clair = présence indirecte (États-Unis, Mexique) ; gris = absent.
+  Colorer le Mexique comme une cuisine nationale aurait été trompeur : il
+  n'existe pas de catégorie « mexicaine », seulement le Tex-Mex, cuisine
+  texane d'inspiration mexicaine. Le même raisonnement vaut pour les
+  États-Unis, sans catégorie nationale. Teinte claire choisie par calcul
+  d'écart ΔE (≥ 25 avec l'orange et le gris, y compris en simulation de
+  daltonisme).
+- Flèches : 48 catégories au lieu de 43 ; l'Amérique du Nord passe de 4 à
+  9 catégories, de +2 à +11 points d'écart avec sa part de population.
+  Les valeurs de contrôle du brief restent vérifiées sur le périmètre
+  national (bascule désactivée).
+- Limite assumée : compter 5 traditions américaines comme 5 « cuisines »
+  reflète le découpage éditorial d'Allrecipes, pas un poids culinaire ;
+  c'est précisément ce que la bascule rend visible.
+
 ### 1.4 Bugs corrigés, validations, vérifications
 
 - **Pluriels des ingrédients** : `src/ingredients.py` cherchait `\begg\b`,
@@ -227,10 +256,11 @@ pas comme un résultat.
 - Proposition brute : choroplèthe continue du nombre de recettes.
 - Critique : cf. ancienne carte (artefact du plafond, Séance 2).
 - Alternatives écartées : dégradé ; carte par continent (masque les pays).
-- Version finale : couleur **discrète à deux états** (orange = cuisine
-  proposée, gris clair = aucune), 43 pays (41 catégories « pays » + Australie
-  et Nouvelle-Zélande), sans légende (le sous-titre explique). Tâche :
-  localiser. Note listant les 7 catégories non cartographiables (calculée).
+- Version finale : couleur **discrète** (orange = catégorie nationale,
+  43 pays ; orange clair = présence indirecte par une tradition régionale,
+  bascule activée ; gris clair = aucune), sans légende (le sous-titre
+  explique). Tâche : localiser. Note calculée sur les catégories non
+  rattachées et sur le cas du Mexique (voir § 1.3 bis).
 - Décision : **modifié**.
 
 ### Page 1 — Diagramme à flèches par continent
@@ -300,7 +330,7 @@ pas comme un résultat.
 |---|---|---|---|---|---|
 | Tâche → graphique (S4) | localiser | comparer 2 états | motif | classer | composition |
 | Titre = question + sous-titre (S3) | oui | oui | oui | oui | oui |
-| Couleur au service de la tâche | 2 états | sens de l'écart | intensité | accent top 5 | 4 groupes |
+| Couleur au service de la tâche | 2 ou 3 états | sens de l'écart | intensité | accent top 5 | 4 groupes |
 | Barres à zéro (S3) | — | axe 0–100 | — | oui | 0–100 % |
 | Pas de double encodage | oui | oui (pas de couleur par continent) | colorbar retirée | oui | oui |
 | Composition = vrai tout (S5) | — | — | — | pas d'empilement | oui |

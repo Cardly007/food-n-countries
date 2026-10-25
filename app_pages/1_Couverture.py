@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.load_data import load_processed, load_stats
 from src.theme import (
-    ACCENT, DIV_NEG, DIV_POS, GREY, GREY_LIGHT, MUTED, apply_theme,
+    ACCENT, ACCENT_LIGHT, DIV_NEG, DIV_POS, GREY, GREY_LIGHT, MUTED, apply_theme,
     chart_title, fmt_int, fmt_num, fmt_pct, show,
 )
 
@@ -20,22 +20,46 @@ st.caption(
     "recettes (voir l'encadré en bas de page)."
 )
 
-# --- Carte présent / absent ---------------------------------------------------
-not_mapped = catalog[(catalog["map_type"] != "single_country")
-                     & (~catalog["country"].isin(presence["country"]))]
-chart_title(
-    "Quels pays ont leur cuisine dans le catalogue ?",
-    f"Orange : pays dont la cuisine a sa propre catégorie sur Allrecipes "
-    f"({fmt_int(stats['n_pays_carte'])} pays). Gris : aucune catégorie. "
-    f"Survolez un pays pour voir le nom de la catégorie.",
+with_regional = st.toggle(
+    "Inclure les traditions régionales",
+    value=True,
+    help="Rattache les catégories qui ne sont pas des cuisines nationales à leur "
+         "territoire d'origine : soul food, cajun et créole, Sud des États-Unis, "
+         "amish et Tex-Mex aux États-Unis (Tex-Mex aussi au Mexique), Scandinave au "
+         "Danemark, à la Norvège et à la Suède. Désactivé : seules les catégories "
+         "nationales comptent.",
 )
+
+# --- Carte présent / absent ---------------------------------------------------
+NATIONAL, INDIRECT = "Catégorie nationale", "Présence indirecte (tradition régionale)"
+shown = presence if with_regional else presence[presence["statut"] == "nationale"]
+by_iso = (
+    shown.assign(label=shown["cuisine"].where(
+        shown["statut"] == "nationale", shown["cuisine"] + " (indirecte)"))
+    .groupby("iso3")
+    .agg(statut=("statut", lambda s: NATIONAL if (s == "nationale").any() else INDIRECT),
+         cuisines=("label", lambda s: "<br>".join(s)))
+    .reset_index()
+)
+n_national = int((by_iso["statut"] == NATIONAL).sum())
+n_indirect = int((by_iso["statut"] == INDIRECT).sum())
+not_mapped = catalog[~catalog["country"].isin(shown["country"])
+                     & (catalog["map_type"] != "single_country")]
+
+subtitle = (f"Orange : pays dont la cuisine a sa propre catégorie sur Allrecipes "
+            f"({fmt_int(n_national)} pays). ")
+if with_regional:
+    subtitle += (f"Orange clair : pays présents seulement à travers une tradition "
+                 f"régionale ({fmt_int(n_indirect)} pays). ")
+subtitle += "Gris : aucune catégorie. Survolez un pays pour voir les catégories."
+chart_title("Quels pays ont leur cuisine dans le catalogue ?", subtitle)
+
 fig = px.choropleth(
-    presence.assign(statut="Cuisine proposée"),
-    locations="iso3",
-    color="statut",
-    color_discrete_map={"Cuisine proposée": ACCENT},
-    hover_name="cuisine",
-    hover_data={"iso3": False, "statut": False},
+    by_iso, locations="iso3", color="statut",
+    color_discrete_map={NATIONAL: ACCENT, INDIRECT: ACCENT_LIGHT},
+    category_orders={"statut": [NATIONAL, INDIRECT]},
+    hover_name="cuisines",
+    hover_data={"iso3": False, "statut": False, "cuisines": False},
 )
 fig.update_traces(marker_line_color="white", marker_line_width=0.5)
 fig.update_geos(
@@ -49,18 +73,33 @@ fig.update_geos(
 apply_theme(fig, height=460)
 fig.update_layout(showlegend=False, margin=dict(l=0, r=0, t=0, b=0))
 show(fig)
-st.caption(
-    f"Non cartographiables ({len(not_mapped)} catégories, "
-    f"{fmt_int(not_mapped['n_recettes'].sum())} recettes) : "
-    + ", ".join(sorted(not_mapped["cuisine"]))
-    + ". Ce sont des traditions régionales ou communautaires, ou une région "
-    "multi-pays (« Scandinave »). Elles restent dans les pages 2 à 4."
-)
+
+if with_regional:
+    st.caption(
+        "Le Mexique n'a pas de catégorie propre sur Allrecipes : il n'apparaît qu'à "
+        "travers le Tex-Mex, cuisine texane d'inspiration mexicaine. Les États-Unis "
+        "n'ont pas non plus de catégorie nationale, seulement des traditions "
+        "régionales. Non rattachée : "
+        + ", ".join(f"{c} ({fmt_int(n)} recettes)"
+                    for c, n in zip(not_mapped["cuisine"], not_mapped["n_recettes"]))
+        + ", cuisine de diaspora sans territoire (Israël a sa propre catégorie)."
+    )
+else:
+    st.caption(
+        f"Non cartographiables ({len(not_mapped)} catégories, "
+        f"{fmt_int(not_mapped['n_recettes'].sum())} recettes) : "
+        + ", ".join(sorted(not_mapped["cuisine"]))
+        + ". Ce sont des traditions régionales ou communautaires, ou une région "
+        "multi-pays (« Scandinave »). Elles restent dans les pages 2 à 4."
+    )
 
 st.divider()
 
 # --- Diagramme à flèches par continent ------------------------------------------
-n_cont = int(stats["n_categories_continent"])
+perimetre = "regional" if with_regional else "national"
+continents = continents[continents["perimetre"] == perimetre]
+n_cont = int(stats["n_categories_continent_regional" if with_regional
+                   else "n_categories_continent"])
 chart_title(
     "Le poids de chaque continent dans le catalogue suit-il son poids dans la population mondiale ?",
     f"Chaque flèche part de la part du continent dans la population mondiale "
@@ -68,7 +107,9 @@ chart_title(
     f"cuisine rattachées à un continent. Orange : plus présent dans le "
     f"catalogue que dans la population ; bleu : moins présent. Étiquette : "
     f"écart en points de pourcentage. Les catégories sont comptées une à une, "
-    f"pas en recettes.",
+    f"pas en recettes."
+    + (" Traditions régionales incluses (bascule en haut de page)." if with_regional
+       else " Catégories nationales et multi-pays seulement."),
 )
 
 c = continents.sort_values("ecart_points")  # le plus sous-représenté en bas
@@ -113,6 +154,9 @@ fig.update_xaxes(range=[0, 100], ticksuffix=" %", showgrid=True,
 fig.update_yaxes(title_text=None)
 show(fig)
 
+all_perim = load_processed("continent_summary").set_index(["perimetre", "continent"])
+na_nat = all_perim.loc[("national", "Amérique du Nord")]
+na_reg = all_perim.loc[("regional", "Amérique du Nord")]
 asia = continents.set_index("continent").loc["Asie"]
 europe = continents.set_index("continent").loc["Europe"]
 st.caption(
@@ -120,7 +164,11 @@ st.caption(
     f"population mondiale et {fmt_pct(europe['pct_categories'])} des catégories ; "
     f"l'Asie, {fmt_pct(asia['pct_population'])} et "
     f"{fmt_pct(asia['pct_categories'])}. Population : worldpopulationreview.com "
-    f"(tableau de la Séance 5 du cours). Les Caraïbes sont comptées en Amérique "
+    f"(tableau de la Séance 5 du cours). Avec les traditions régionales, l'Amérique "
+    f"du Nord passe de {fmt_int(na_nat['n_categories'])} à "
+    f"{fmt_int(na_reg['n_categories'])} catégories "
+    f"({fmt_pct(na_nat['pct_categories'])} → {fmt_pct(na_reg['pct_categories'])}). "
+    f"Les Caraïbes sont comptées en Amérique "
     f"du Nord. Une catégorie peut couvrir un petit pays comme un pays très "
     f"peuplé : la comparaison porte sur la variété de l'offre, pas sur "
     f"une « juste » proportion."

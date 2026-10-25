@@ -21,6 +21,10 @@ import streamlit as st
 GREY = "#BDBDBD"
 GREY_LIGHT = "#E6E6E6"
 ACCENT = "#E69F00"  # orange Okabe-Ito
+# Version claire de l'accent, pour un état « intermédiaire » (présence
+# indirecte sur la carte). Écart de couleur ΔE ≥ 25 avec l'accent et avec le
+# gris clair, y compris en simulation de deutéranopie, protanopie et tritanopie.
+ACCENT_LIGHT = "#F6CD86"
 
 # Divergente (sens d'un écart) : deux teintes distinctes, lisibles par les
 # daltoniens, autour d'un point neutre.

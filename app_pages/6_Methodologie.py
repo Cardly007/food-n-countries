@@ -77,23 +77,36 @@ st.markdown(
 
 st.subheader("4. Continents et population")
 st.markdown(
-    f"{fmt_int(stats['n_categories_continent'])} catégories sont rattachées à un "
-    f"continent (les Caraïbes en Amérique du Nord ; « Australienne et "
-    f"néo-zélandaise » en Océanie ; « Scandinave » en Europe). Les traditions "
-    f"régionales et communautaires restent hors de cette comparaison. Population : "
-    f"tableau worldpopulationreview.com fourni en Séance 5 du cours, agrégé par "
-    f"continent (`data/reference/population_continent.csv`). Les catégories sont "
-    f"comptées une à une, pas pondérées par leur nombre de recettes."
+    f"{fmt_int(stats['n_categories_continent'])} catégories sont rattachées "
+    f"directement à un continent (les Caraïbes en Amérique du Nord ; « Australienne "
+    f"et néo-zélandaise » en Océanie ; « Scandinave » en Europe). La bascule "
+    f"« Inclure les traditions régionales » de la page 1 rattache aussi les "
+    f"traditions à leur territoire d'origine (`REGIONAL_ZONES` dans "
+    f"`src/country_mapping.py`) : soul food, cajun et créole, Sud des États-Unis, "
+    f"amish et Tex-Mex aux États-Unis, donc à l'Amérique du Nord "
+    f"({fmt_int(stats['n_categories_continent_regional'])} catégories au total). Sur "
+    f"la carte, ces pays apparaissent en « présence indirecte » ; le Mexique n'y "
+    f"figure qu'à travers le Tex-Mex, faute de catégorie mexicaine. La cuisine juive "
+    f"(diaspora, sans territoire ; Israël a sa propre catégorie) reste non "
+    f"rattachée. Population : tableau worldpopulationreview.com fourni en Séance 5 "
+    f"du cours, agrégé par continent (`data/reference/population_continent.csv`). "
+    f"Les catégories sont comptées une à une, pas pondérées par leur nombre de "
+    f"recettes."
 )
+nat = continents[continents["perimetre"] == "national"].set_index("continent")
+reg = continents[continents["perimetre"] == "regional"].set_index("continent")
 st.dataframe(
-    continents.sort_values("pct_population", ascending=False).assign(
-        pop=lambda d: d["pct_population"].map(lambda x: fmt_pct(x, 1)),
-        cat=lambda d: d["pct_categories"].map(lambda x: fmt_pct(x, 1)),
-        ecart=lambda d: d["ecart_points"].map(lambda x: f"{fmt_num(x, 1)} pts"),
-    )[["continent", "population_millions", "pop", "n_categories", "cat", "ecart"]]
+    nat.assign(
+        pop=nat["pct_population"].map(lambda x: fmt_pct(x, 1)),
+        cat=nat["pct_categories"].map(lambda x: fmt_pct(x, 1)),
+        cat_reg=reg["pct_categories"].map(lambda x: fmt_pct(x, 1)),
+        n_reg=reg["n_categories"],
+    ).sort_values("pct_population", ascending=False).reset_index()
+    [["continent", "population_millions", "pop", "n_categories", "cat", "n_reg", "cat_reg"]]
     .rename(columns={"continent": "Continent", "population_millions": "Population (M)",
                      "pop": "% population", "n_categories": "Catégories",
-                     "cat": "% catégories", "ecart": "Écart"}),
+                     "cat": "% catégories", "n_reg": "Catégories (avec traditions)",
+                     "cat_reg": "% catégories (avec traditions)"}),
     hide_index=True, width="stretch",
 )
 

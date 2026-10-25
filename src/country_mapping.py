@@ -187,3 +187,38 @@ CUISINE_LABELS_FR = {
     "Jewish": "Juive",
     "Amish and Mennonite": "Amish et mennonite",
 }
+
+
+# ---------------------------------------------------------------------------
+# Rattachement INDIRECT des catégories non nationales (bascule de la page 1).
+#
+# Ces catégories ne sont pas des cuisines nationales, mais elles ont un
+# territoire d'origine identifiable. Quand la bascule « traditions
+# régionales » est active, on les compte dans le continent de ce territoire
+# et on colore les pays concernés comme « présence indirecte » (teinte
+# distincte de la présence par une catégorie nationale).
+#
+# - Les traditions régionales américaines et amish -> États-Unis.
+# - Tex-Mex -> États-Unis (cuisine texane) ET Mexique : le Mexique n'a PAS de
+#   catégorie propre sur Allrecipes, il n'est présent qu'à travers cette
+#   cuisine de fusion. On le signale explicitement plutôt que de le colorer
+#   comme une cuisine nationale.
+# - Scandinave -> Danemark, Norvège, Suède (qui ont déjà leur catégorie).
+# - Juive : cuisine de diaspora sans territoire ; Israël a déjà sa propre
+#   catégorie. Reste non rattachée.
+# ---------------------------------------------------------------------------
+REGIONAL_ZONES = {
+    "Soul Food":           {"continent": "Amérique du Nord", "iso3": ["USA"]},
+    "Cajun and Creole":    {"continent": "Amérique du Nord", "iso3": ["USA"]},
+    "Southern Recipes":    {"continent": "Amérique du Nord", "iso3": ["USA"]},
+    "Amish and Mennonite": {"continent": "Amérique du Nord", "iso3": ["USA"]},
+    "Tex-Mex":             {"continent": "Amérique du Nord", "iso3": ["USA", "MEX"]},
+    "Scandinavian":        {"continent": "Europe", "iso3": ["DNK", "NOR", "SWE"]},
+}
+
+
+def get_zone_continent(country: str) -> str | None:
+    """Continent en comptant aussi les rattachements indirects."""
+    if country in REGIONAL_ZONES:
+        return REGIONAL_ZONES[country]["continent"]
+    return get_continent(country)

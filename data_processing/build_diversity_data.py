@@ -32,7 +32,8 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import spearmanr
 
 from src.country_mapping import (
-    CONTINENTS, CUISINE_LABELS_FR, EXTRA_MAP_ISO3, attach_iso3, get_continent,
+    CONTINENTS, CUISINE_LABELS_FR, EXTRA_MAP_ISO3, REGIONAL_ZONES, attach_iso3,
+    get_continent, get_zone_continent,
 )
 from src.dish_type import DESSERT, DISH_GROUPS, classify_dish
 from src.ingredients import INGREDIENT_LABELS, ingredient_presence
@@ -80,25 +81,41 @@ def build_coverage(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Dat
         .size().reset_index(name="n_recettes")
         .sort_values("n_recettes", ascending=False)
     )
+    catalog["continent_zone"] = catalog["country"].map(get_zone_continent)
 
     pop = pd.read_csv(REF_DIR / "population_continent.csv")
     assert set(pop["continent"]) == set(CONTINENTS), "continents incohérents"
     pop["pct_population"] = pop["population_millions"] / pop["population_millions"].sum()
 
-    with_cont = catalog.dropna(subset=["continent"])
-    cats = with_cont.groupby("continent").size().rename("n_categories")
-    summary = pop.merge(cats, left_on="continent", right_index=True, how="left")
-    summary["n_categories"] = summary["n_categories"].fillna(0).astype(int)
-    summary["pct_categories"] = summary["n_categories"] / summary["n_categories"].sum()
-    summary["ecart_points"] = 100 * (summary["pct_categories"] - summary["pct_population"])
-    summary = summary.sort_values("ecart_points").reset_index(drop=True)
+    # Deux périmètres (bascule de la page 1) : catégories rattachées
+    # directement à un continent, ou aussi les traditions régionales
+    # rattachées à leur territoire d'origine (src/country_mapping.REGIONAL_ZONES).
+    summaries = []
+    for perimetre, col in [("national", "continent"), ("regional", "continent_zone")]:
+        cats = catalog.dropna(subset=[col]).groupby(col).size().rename("n_categories")
+        summary = pop.merge(cats, left_on="continent", right_index=True, how="left")
+        summary["n_categories"] = summary["n_categories"].fillna(0).astype(int)
+        summary["pct_categories"] = summary["n_categories"] / summary["n_categories"].sum()
+        summary["ecart_points"] = 100 * (summary["pct_categories"] - summary["pct_population"])
+        summary["perimetre"] = perimetre
+        summaries.append(summary.sort_values("ecart_points"))
+    summary = pd.concat(summaries, ignore_index=True)
 
-    present = catalog[catalog["map_type"] == "single_country"][["iso3", "country", "cuisine"]]
-    extra = [
-        {"iso3": iso, "country": cat, "cuisine": CUISINE_LABELS_FR[cat]}
+    # Présence sur la carte : « nationale » (catégorie propre au pays) ou
+    # « indirecte » (tradition régionale ou catégorie multi-pays).
+    rows = [
+        {"iso3": r.iso3, "country": r.country, "cuisine": r.cuisine, "statut": "nationale"}
+        for r in catalog[catalog["map_type"] == "single_country"].itertuples()
+    ]
+    rows += [
+        {"iso3": iso, "country": cat, "cuisine": CUISINE_LABELS_FR[cat], "statut": "nationale"}
         for cat, isos in EXTRA_MAP_ISO3.items() for iso in isos
     ]
-    map_presence = pd.concat([present, pd.DataFrame(extra)], ignore_index=True)
+    rows += [
+        {"iso3": iso, "country": cat, "cuisine": CUISINE_LABELS_FR[cat], "statut": "indirecte"}
+        for cat, zone in REGIONAL_ZONES.items() for iso in zone["iso3"]
+    ]
+    map_presence = pd.DataFrame(rows)
     return catalog, summary, map_presence
 
 
@@ -338,7 +355,9 @@ def build():
         "n_categories_continent": int(catalog["continent"].notna().sum()),
         "n_categories_single_country": int((catalog["map_type"] == "single_country").sum()),
         "n_recettes_single_country": int(catalog.loc[catalog["map_type"] == "single_country", "n_recettes"].sum()),
-        "n_pays_carte": int(map_presence["iso3"].nunique()),
+        "n_pays_carte": int(map_presence.loc[map_presence["statut"] == "nationale", "iso3"].nunique()),
+        "n_pays_carte_avec_regional": int(map_presence["iso3"].nunique()),
+        "n_categories_continent_regional": int(catalog["continent_zone"].notna().sum()),
         "seuil_plafond": CAP_RECIPES,
         "annee_recente": int(RECENT_FROM[:4]),
         "n_categories_plafond": int((catalog["n_recettes"] >= CAP_RECIPES).sum()),
@@ -364,7 +383,7 @@ def build():
         OUT_DIR / "diversity_stats.parquet", index=False)
 
     # Tableau de contrôle (valeurs du brief)
-    cs = continent_summary.set_index("continent")
+    cs = continent_summary[continent_summary["perimetre"] == "national"].set_index("continent")
     pays_freq = freq_matrix(freq, "tout")
     pays_freq = pays_freq[pays_freq.index.isin(catalog.loc[catalog.map_type == "single_country", "country"])]
     att = attention.set_index("country")["avis_par_recette"]
