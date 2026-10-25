@@ -142,7 +142,7 @@ st.dataframe(
 
 st.subheader("7. Attention du public : avis par recette")
 st.markdown(
-    f"**Avis par recette** = somme des évaluations (`total_ratings`) des recettes "
+    f"**Avis par recette** = somme des évaluations (étoiles) des recettes "
     f"d'une cuisine ÷ nombre de recettes de cette cuisine. Les recettes sans "
     f"évaluation ({fmt_pct(stats['pct_avis_manquants'], 1)}, note et commentaires "
     f"manquants eux aussi) comptent pour 0 avis : elles font partie de l'offre mais "

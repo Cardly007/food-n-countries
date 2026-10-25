@@ -31,8 +31,10 @@ DIV_NEUTRAL = GREY
 # Séquentielle (heatmap) : une seule teinte.
 SEQUENTIAL = "Blues"
 
-# Catégorielle (4 groupes au maximum dans l'application) : Okabe-Ito.
-CATEGORICAL = ["#0072B2", "#56B4E9", "#CC79A7", "#999999"]
+# Catégorielle (4 groupes au maximum dans l'application) : Okabe-Ito. Le
+# gris est éclairci (#999999 -> #CCCCCC) : en simulation de deutéranopie et
+# de protanopie, le rose #CC79A7 devenait presque le même gris moyen.
+CATEGORICAL = ["#0072B2", "#56B4E9", "#CC79A7", "#CCCCCC"]
 
 TEXT = "#262626"
 MUTED = "#6B6B6B"
