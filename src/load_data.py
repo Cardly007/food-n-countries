@@ -35,12 +35,13 @@ def load_cuisines() -> pd.DataFrame:
     return _coerce_types(df)
 
 
-@st.cache_data
 def load_processed(name: str) -> pd.DataFrame:
-    """Charge un fichier déjà pré-calculé par build_processed_data.py.
+    """Charge un fichier déjà pré-calculé par les scripts de data_processing/.
 
     Lève une erreur claire si le pipeline n'a pas encore été exécuté, plutôt
-    que de planter avec un FileNotFoundError générique dans Streamlit.
+    que de planter avec un FileNotFoundError générique dans Streamlit. Le
+    cache dépend de la date de modification du fichier : relancer le
+    pipeline suffit, pas besoin de redémarrer l'appli.
     """
     path = PROCESSED_DIR / f"{name}.parquet"
     if not path.exists():
@@ -49,10 +50,14 @@ def load_processed(name: str) -> pd.DataFrame:
             f"python data_processing/build_processed_data.py puis "
             f"python data_processing/build_diversity_data.py"
         )
-    return pd.read_parquet(path)
+    return _read_parquet(path, path.stat().st_mtime)
 
 
 @st.cache_data
+def _read_parquet(path: Path, mtime: float) -> pd.DataFrame:
+    return pd.read_parquet(path)
+
+
 def load_stats() -> dict:
     """Statistiques scalaires calculées par build_diversity_data.py."""
     s = load_processed("diversity_stats")

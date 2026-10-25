@@ -325,6 +325,7 @@ def build():
         "n_recettes_single_country": int(catalog.loc[catalog["map_type"] == "single_country", "n_recettes"].sum()),
         "n_pays_carte": int(map_presence["iso3"].nunique()),
         "seuil_plafond": CAP_RECIPES,
+        "annee_recente": int(RECENT_FROM[:4]),
         "n_categories_plafond": int((catalog["n_recettes"] >= CAP_RECIPES).sum()),
         "max_recettes_categorie": int(catalog["n_recettes"].max()),
         "avis_total": float(df["total_ratings"].fillna(0).sum()),
