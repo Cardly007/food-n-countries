@@ -44,6 +44,7 @@ OUT_DIR = ROOT / "data" / "processed"
 
 MIN_RECIPES = 15        # seuil d'affichage d'une cuisine (axes 2, 3, 4)
 SMALL_RECIPES = 30      # en dessous : effectif signalé par un astérisque
+CAP_RECIPES = 60        # repère du plafond de collecte (60 à 67 recettes)
 N_FAMILIES = 5          # coupe du dendrogramme
 RECENT_FROM = "2022-01-01"
 
@@ -323,7 +324,8 @@ def build():
         "n_categories_single_country": int((catalog["map_type"] == "single_country").sum()),
         "n_recettes_single_country": int(catalog.loc[catalog["map_type"] == "single_country", "n_recettes"].sum()),
         "n_pays_carte": int(map_presence["iso3"].nunique()),
-        "n_categories_plafond": int((catalog["n_recettes"] >= 60).sum()),
+        "seuil_plafond": CAP_RECIPES,
+        "n_categories_plafond": int((catalog["n_recettes"] >= CAP_RECIPES).sum()),
         "max_recettes_categorie": int(catalog["n_recettes"].max()),
         "avis_total": float(df["total_ratings"].fillna(0).sum()),
         "n_ingredients": len(INGREDIENT_LABELS),

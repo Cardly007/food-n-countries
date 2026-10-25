@@ -46,6 +46,14 @@ def load_processed(name: str) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
             f"{path} introuvable. Lancez d'abord : "
-            f"python data_processing/build_processed_data.py"
+            f"python data_processing/build_processed_data.py puis "
+            f"python data_processing/build_diversity_data.py"
         )
     return pd.read_parquet(path)
+
+
+@st.cache_data
+def load_stats() -> dict:
+    """Statistiques scalaires calculées par build_diversity_data.py."""
+    s = load_processed("diversity_stats")
+    return dict(zip(s["stat"], s["value"]))
