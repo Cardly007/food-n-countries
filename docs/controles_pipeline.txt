@@ -60,6 +60,6 @@ Familles :
   4. Asie du Sud [gingembre, cumin, ail] : Pakistani, Indian
   5. Asie de l'Est et du Sud-Est [sauce soja, gingembre, ail] : Thai, Vietnamese, Indonesian, Malaysian, Jamaican, Filipino, Korean, Chinese, Japanese
 
-Validation du type de plat : {'n_echantillon': 100.0, 'n_erreurs': 9.0, 'n_ambigus': 2.0, 'taux_erreur': 0.09, 'taux_erreur_avec_ambigus': 0.11, 'ic95_bas': 0.04807199516388488, 'ic95_haut': 0.16226374696643667, 'n_erreurs_ajustement': 12.0, 'n_desserts_manques': 6.0}
+Validation du type de plat : {'n_echantillon': 100.0, 'n_erreurs': 9.0, 'n_ambigus': 2.0, 'taux_erreur': 0.09, 'taux_erreur_avec_ambigus': 0.11, 'ic95_bas': 0.04807199516388488, 'ic95_haut': 0.16226374696643667, 'n_echantillon_ajustement': 100.0, 'n_erreurs_ajustement': 12.0, 'n_desserts_manques': 6.0}
 
 OK — fichiers écrits dans /home/user/food-n-countries/data/processed

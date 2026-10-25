@@ -1,85 +1,190 @@
 import streamlit as st
-from src.load_data import load_processed
-from src.country_mapping import get_mapping_df
+
+from src.ingredients import DIVERSITY_INGREDIENTS, INGREDIENT_LABELS
+from src.load_data import load_processed, load_stats
+from src.theme import fmt_int, fmt_num, fmt_pct
+
+stats = load_stats()
+overlap = load_processed("overlap_stats").iloc[0]
+catalog = load_processed("cuisine_catalog")
+continents = load_processed("continent_summary")
+families = load_processed("cuisine_families")
+val = load_processed("dish_validation").iloc[0]
 
 st.title("Méthodologie et limites")
 
 st.markdown(
     """
-Cette page centralise les choix méthodologiques et leurs limites — à
-réutiliser directement dans le Journal de bord (section "Audit et critique
-visuelle").
+Cette page centralise les choix méthodologiques et leurs limites. Tous les
+chiffres sont recalculés depuis les données par
+`data_processing/build_diversity_data.py` ; le détail des décisions et de
+l'audit de l'IA est dans `JOURNAL_IA.md`.
 """
 )
 
-st.subheader("1. Deux tables, pas une seule population de 16 644 recettes")
-overlap = load_processed("overlap_stats").iloc[0]
+st.subheader("1. Deux tables, pas une seule population de recettes")
 st.write(
-    f"`all_recipes.csv` contient {overlap.n_all_recipes:,.0f} recettes, "
-    f"`cuisines.csv` en contient {overlap.n_cuisines:,.0f}. Seules "
-    f"{overlap.n_overlap:,.0f} recettes ({overlap.pct_cuisines_in_all_recipes:.1%} "
-    f"de `cuisines.csv`) existent dans les deux (jointure sur l'URL). "
-    f"**Ce ne sont donc pas des sous-ensembles l'un de l'autre** : on ne "
-    f"peut pas dire \"les 14 426 recettes, dont 2 218 catégorisées par pays\".".replace(",", " ")
+    f"`all_recipes.csv` contient {fmt_int(overlap.n_all_recipes)} recettes (sans pays), "
+    f"`cuisines.csv` en contient {fmt_int(overlap.n_cuisines)} (classées par cuisine). "
+    f"Seules {fmt_int(overlap.n_overlap)} recettes "
+    f"({fmt_pct(overlap.pct_cuisines_in_all_recipes, 1)} de `cuisines.csv`) existent "
+    f"dans les deux (jointure sur l'URL) : **ce ne sont pas des sous-ensembles l'une "
+    f"de l'autre**. Total sans doublon : {fmt_int(overlap.n_all_recipes)} + "
+    f"{fmt_int(overlap.n_cuisines)} − {fmt_int(overlap.n_overlap)} = "
+    f"**{fmt_int(stats['n_recettes_uniques'])} recettes uniques**. Toutes les analyses "
+    f"de l'application portent sur `cuisines.csv`, seule table qui indique une cuisine."
 )
 
-st.subheader("2. La colonne `country` n'est pas une liste de pays")
+st.subheader("2. La colonne « pays » n'est pas une liste de pays")
+types = catalog["map_type"].value_counts()
 st.markdown(
-    "8 des 49 valeurs de `country` (396 recettes, 18 % de `cuisines.csv`) "
-    "ne correspondent pas à un pays unique et sont exclues de la carte "
-    "choroplèthe (voir `src/country_mapping.py`) :"
+    f"Les {fmt_int(stats['n_categories'])} catégories sont choisies par Allrecipes : "
+    f"{fmt_int(types.get('single_country', 0))} pays, "
+    f"{fmt_int(types.get('multi_country', 0))} régions multi-pays, "
+    f"{fmt_int(types.get('us_regional', 0))} traditions régionales américaines et "
+    f"{fmt_int(types.get('non_national', 0))} communautés sans territoire national "
+    f"(voir `src/country_mapping.py`). Il n'existe pas de catégorie « américaine » : "
+    f"la cuisine des États-Unis n'apparaît qu'à travers ses traditions régionales."
 )
-mapping = get_mapping_df()
+TYPE_FR = {"single_country": "Pays", "multi_country": "Région multi-pays",
+           "us_regional": "Tradition régionale (États-Unis)",
+           "non_national": "Communauté"}
 st.dataframe(
-    mapping[mapping["map_type"] != "single_country"].sort_values("map_type"),
-    width='stretch', hide_index=True,
+    catalog.assign(type=catalog["map_type"].map(TYPE_FR),
+                   continent=catalog["continent"].fillna("— (hors continent)"))
+    [["cuisine", "country", "type", "continent", "n_recettes"]]
+    .sort_values(["type", "cuisine"])
+    .rename(columns={"cuisine": "Cuisine", "country": "Libellé Allrecipes",
+                     "type": "Nature", "continent": "Continent",
+                     "n_recettes": "Recettes"}),
+    hide_index=True, width="stretch", height=300,
 )
 
-st.subheader("3. Pas de colonne sucre ni catégorie de plat")
+st.subheader("3. Une collecte plafonnée")
 st.markdown(
-    """
-- Les seules variables nutritionnelles disponibles sont `calories`, `fat`,
-  `carbs`, `protein` (par portion). **Il n'y a pas de colonne sucre** : les
-  analyses sur le sucre utilisent soit `carbs` comme proxy, soit une
-  détection par mot-clé dans le texte libre `ingredients`
-  (`src/ingredients.py`, `SUGAR_KEYWORDS`).
-- **Il n'y a pas de colonne catégorie** (dessert / plat principal /
-  entrée...). Une différence de profil nutritionnel entre deux pays peut
-  donc refléter une différence de composition du corpus (plus ou moins de
-  desserts) plutôt qu'une vraie différence culinaire nationale.
-"""
+    f"{fmt_int(stats['n_categories_plafond'])} catégories sur "
+    f"{fmt_int(stats['n_categories'])} ont entre {fmt_int(stats['seuil_plafond'])} et "
+    f"{fmt_int(stats['max_recettes_categorie'])} recettes : la collecte a été "
+    f"tronquée. **Le nombre de recettes d'une grande cuisine ne mesure donc pas sa "
+    f"place sur le site** ; seules la présence ou l'absence d'une cuisine et les "
+    f"petits effectifs sont informatifs. C'est pourquoi la carte de la page 1 est "
+    f"à deux états (présent / absent) et non un dégradé du nombre de recettes. "
+    f"Les cuisines de moins de {fmt_int(stats['seuil_recettes'])} recettes sont "
+    f"exclues des pages 2 à 4 ({fmt_int(stats['n_categories_retenues'])} cuisines "
+    f"retenues) ; celles de moins de {fmt_int(stats['seuil_petit_effectif'])} "
+    f"recettes sont marquées d'un astérisque."
 )
 
-st.subheader("4. Comptage d'ingrédients : une approximation, pas une mesure exacte")
+st.subheader("4. Continents et population")
 st.markdown(
-    """
-Le champ `ingredients` est une liste jointe par `", "`, mais certains items
-contiennent eux-mêmes une virgule interne (ex : `"margarine, softened"` est
-un seul ingrédient, pas deux). Le nombre d'items calculé par
-`nombre de virgules + 1` (`approx_n_items`) **surestime légèrement** le
-vrai nombre d'ingrédients. À utiliser en **comparaison relative entre
-pays**, jamais comme un chiffre absolu présenté seul.
-"""
+    f"{fmt_int(stats['n_categories_continent'])} catégories sont rattachées à un "
+    f"continent (les Caraïbes en Amérique du Nord ; « Australienne et "
+    f"néo-zélandaise » en Océanie ; « Scandinave » en Europe). Les traditions "
+    f"régionales et communautaires restent hors de cette comparaison. Population : "
+    f"tableau worldpopulationreview.com fourni en Séance 5 du cours, agrégé par "
+    f"continent (`data/reference/population_continent.csv`). Les catégories sont "
+    f"comptées une à une, pas pondérées par leur nombre de recettes."
+)
+st.dataframe(
+    continents.sort_values("pct_population", ascending=False).assign(
+        pop=lambda d: d["pct_population"].map(lambda x: fmt_pct(x, 1)),
+        cat=lambda d: d["pct_categories"].map(lambda x: fmt_pct(x, 1)),
+        ecart=lambda d: d["ecart_points"].map(lambda x: f"{fmt_num(x, 1)} pts"),
+    )[["continent", "population_millions", "pop", "n_categories", "cat", "ecart"]]
+    .rename(columns={"continent": "Continent", "population_millions": "Population (M)",
+                     "pop": "% population", "n_categories": "Catégories",
+                     "cat": "% catégories", "ecart": "Écart"}),
+    hide_index=True, width="stretch",
 )
 
-st.subheader("5. Seuils nutritionnels")
+st.subheader("5. Ingrédients : vocabulaire et correction des pluriels")
 st.markdown(
-    """
-Les seuils utilisés (`src/nutrition.py`) sont des repères indicatifs (base
-~2000 kcal/jour pour un adulte), pas des normes cliniques ou OMS
-appliquées littéralement. Ils sont volontairement paramétrables et modifiés
-en direct sur la page **Alternatives saines** pour que le choix de seuil
-soit assumé plutôt que subi.
-"""
+    f"Présence de {fmt_int(stats['n_ingredients'])} ingrédients détectée par mot-clé "
+    f"dans la liste d'ingrédients : "
+    + ", ".join(INGREDIENT_LABELS[k].lower() for k in DIVERSITY_INGREDIENTS)
+    + ". Le vocabulaire mélange des ingrédients universels (sel, sucre, beurre…) et "
+    "des marqueurs distinctifs (sauce soja, gingembre, cumin…).\n\n"
+    f"**Bug corrigé** : la première version cherchait « egg » et « onion » sans le "
+    f"pluriel. Or « 2 large eggs » est la forme la plus courante : la fréquence "
+    f"médiane de l'œuf passait de {fmt_pct(stats['oeuf_mediane_singulier'])} "
+    f"(motif au singulier) à {fmt_pct(stats['oeuf_mediane_corrige'])} une fois "
+    f"corrigé, celle de l'oignon de {fmt_pct(stats['oignon_mediane_singulier'])} à "
+    f"{fmt_pct(stats['oignon_mediane_corrige'])}. Périmètres choisis : « lait » "
+    f"exclut le lait de coco, « beurre » le beurre de cacahuète, « riz » le vinaigre "
+    f"et le vin de riz, « gingembre » exclut les biscuits « gingersnap »."
 )
 
-st.subheader("6. Corrélation ≠ causalité (Axe 3)")
+st.subheader("6. Familles de cuisines")
+k = int(stats["n_familles"])
+st.markdown(
+    f"Chaque cuisine est décrite par son vecteur de fréquences d'ingrédients. "
+    f"Classification hiérarchique ascendante : distance cosinus, liaison moyenne, "
+    f"coupe en {fmt_int(stats['n_familles'])} groupes ; ordre des feuilles optimisé "
+    f"pour trier les lignes de la heatmap. Les familles sont nommées **après** "
+    f"inspection. Stabilité (indice de Rand ajusté, 1 = même partition) : liaison "
+    f"pondérée {fmt_num(stats['ari_liaison_weighted'], 2)}, liaison complète "
+    f"{fmt_num(stats['ari_liaison_complete'], 2)}, "
+    f"{k - 1} groupes {fmt_num(stats['ari_k%d' % (k - 1)], 2)}, "
+    f"{k + 1} groupes {fmt_num(stats['ari_k%d' % (k + 1)], 2)}, "
+    f"sans les desserts {fmt_num(stats['ari_sans_desserts'], 2)}. Les grands blocs "
+    f"(Asie de l'Est, Asie du Sud, Méditerranée) sont stables ; le grand groupe "
+    f"« pâtissier » se scinde selon la méthode et dépend en partie des desserts : "
+    f"ces familles sont une aide à la lecture, pas un résultat."
+)
+st.dataframe(
+    families.groupby(["family_id", "family_label", "family_traits"], sort=True)["cuisine"]
+    .apply(", ".join).reset_index()
+    [["family_label", "family_traits", "cuisine"]]
+    .rename(columns={"family_label": "Famille", "family_traits": "Plus fréquents qu'ailleurs",
+                     "cuisine": "Cuisines"}),
+    hide_index=True, width="stretch",
+)
+
+st.subheader("7. Attention du public : avis par recette")
+st.markdown(
+    f"**Avis par recette** = somme des évaluations (`total_ratings`) des recettes "
+    f"d'une cuisine ÷ nombre de recettes de cette cuisine. Les recettes sans "
+    f"évaluation ({fmt_pct(stats['pct_avis_manquants'], 1)}, note et commentaires "
+    f"manquants eux aussi) comptent pour 0 avis : elles font partie de l'offre mais "
+    f"n'ont pas capté d'attention. Les exclure ne change presque rien au classement "
+    f"(ρ = {fmt_num(stats['rho_manquants_exclus_vs_zero'], 2)}). L'ancienneté n'explique "
+    f"pas le nombre d'avis (corrélation de rang "
+    f"{fmt_num(stats['spearman_anciennete_avis'], 2)}) ; "
+    f"{fmt_pct(stats['pct_recettes_depuis_2022'])} des recettes datent de "
+    f"{int(stats['annee_recente'])} ou après, et le classement calculé sur ces seules "
+    f"recettes est quasi identique (ρ = {fmt_num(stats['rho_classement_depuis_2022'], 2)}). "
+    f"Les notes moyennes, très proches d'une cuisine à l'autre, ne sont pas représentées."
+)
+
+st.subheader("8. Type de plat : une heuristique mesurée")
+st.markdown(
+    f"Il n'y a pas de colonne « catégorie » (dessert, plat…). Le type de plat est "
+    f"déduit de mots-clés du **titre** (`src/dish_type.py`), en 4 groupes, avec "
+    f"l'ordre de priorité boissons, salades, soupes, sauces, desserts et pains, puis "
+    f"plat principal par défaut, et des exclusions pour les pièges connus "
+    f"(« shepherd's pie », « egg rolls », « coffee cake », « sweet potato »…). "
+    f"Validation manuelle : un premier échantillon de "
+    f"{fmt_int(val['n_echantillon_ajustement'])} recettes a servi à ajuster "
+    f"les règles ({fmt_int(val['n_erreurs_ajustement'])} erreurs), puis un second "
+    f"échantillon indépendant de {fmt_int(val['n_echantillon'])} recettes a servi à "
+    f"mesurer : **{fmt_int(val['n_erreurs'])} erreurs, soit "
+    f"{fmt_pct(val['taux_erreur'])}** (IC 95 % : {fmt_pct(val['ic95_bas'])} à "
+    f"{fmt_pct(val['ic95_haut'])}), plus {fmt_int(val['n_ambigus'])} cas ambigus. "
+    f"Les erreurs sous-estiment surtout les desserts. Détail recette par recette : "
+    f"`data/reference/validation_type_plat.csv`."
+)
+
+st.subheader("9. Limites générales")
 st.markdown(
     """
-Une corrélation positive entre note et densité calorique/lipidique ne
-démontre pas que les utilisateurs "récompensent" la malbouffe : elle peut
-refléter une sur-représentation des desserts et plats riches parmi les
-recettes les plus commentées, ou un biais de sélection (seules les
-recettes qui plaisent reçoivent beaucoup d'avis).
+- **Une seule plateforme**, anglophone, à audience surtout américaine : on mesure la
+  représentation dans ce catalogue, pas la diversité culinaire réelle du monde.
+- **Les catégories reflètent les choix éditoriaux d'Allrecipes** ; une cuisine absente
+  peut exister ailleurs sur le site sous une autre étiquette.
+- **Les mots-clés sont en anglais** et dépendent de la rédaction des recettes
+  (« courgette » / « zucchini »…).
+- **Corrélation n'est pas causalité** : un écart d'attention entre cuisines peut
+  venir de la mise en avant par la plateforme, de la saisonnalité ou de quelques
+  recettes très populaires.
 """
 )

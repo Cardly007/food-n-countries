@@ -139,7 +139,8 @@ with st.expander(f"Quelles cuisines n'ont que peu de recettes ? ({len(small)} ca
         icon=":material/warning:",
     )
     st.dataframe(
-        small[["cuisine", "continent", "n_recettes"]].rename(columns={
+        small.assign(continent=small["continent"].fillna("— (hors continent)"))
+        [["cuisine", "continent", "n_recettes"]].rename(columns={
             "cuisine": "Cuisine", "continent": "Continent", "n_recettes": "Recettes"}),
         hide_index=True, width="stretch",
     )

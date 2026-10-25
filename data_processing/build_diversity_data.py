@@ -281,10 +281,25 @@ def build_dish_validation() -> pd.DataFrame:
         "n_echantillon": n, "n_erreurs": k, "n_ambigus": amb,
         "taux_erreur": k / n, "taux_erreur_avec_ambigus": (k + amb) / n,
         "ic95_bas": lo, "ic95_haut": hi,
+        "n_echantillon_ajustement": int((val["echantillon"] == 1).sum()),
         "n_erreurs_ajustement": int((val.loc[val["echantillon"] == 1, "statut"] == "erreur").sum()),
         "n_desserts_manques": int(((mesure["statut"] == "erreur")
                                    & (mesure["groupe_verifie"] == DESSERT)).sum()),
     }])
+
+
+def plural_bug_stats(df: pd.DataFrame, kept: list[str]) -> dict:
+    """Effet du bug des pluriels (motif `\\begg\\b` de src/ingredients.py) sur la
+    fréquence médiane de l'œuf et de l'oignon, cuisines retenues."""
+    sub = df[df["country"].isin(kept)]
+    text = sub["ingredients"].fillna("").str.lower()
+    out = {}
+    for name, old, new in [("oeuf", r"\begg\b", r"\beggs?\b"),
+                           ("oignon", r"\bonion\b", r"\bonions?\b")]:
+        for tag, pattern in [("singulier", old), ("corrige", new)]:
+            pct = text.str.contains(pattern, regex=True).groupby(sub["country"]).mean()
+            out[f"{name}_mediane_{tag}"] = float(pct.median())
+    return out
 
 
 # --- Contrôles ----------------------------------------------------------------
@@ -333,6 +348,7 @@ def build():
         "n_familles": N_FAMILIES,
         **fam_stats,
         **att_stats,
+        **plural_bug_stats(df, kept),
     }
 
     # Écriture
