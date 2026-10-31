@@ -29,8 +29,10 @@ chart_title(
     "Quelle part des recettes de chaque cuisine sont des desserts, des plats, des soupes ou des accompagnements ?",
     "Chaque barre = 100 % des recettes de la cuisine (effectif entre parenthèses, "
     f"* = moins de {fmt_int(small)} recettes). Les cuisines sont triées par part de "
-    "desserts, pâtisseries et pains, premier segment à gauche. Type de plat "
-    "déduit du titre de la recette (heuristique, voir ci-dessous).",
+    "desserts, pâtisseries et pains (en orange), premier segment à gauche : c'est "
+    "la seule couche qui se lit précisément, car elle part de zéro ; les autres "
+    "couches ne donnent qu'un ordre de grandeur. Type de plat déduit du titre de "
+    "la recette (heuristique, voir ci-dessous).",
 )
 
 fig = go.Figure()
@@ -41,7 +43,7 @@ for group in DISH_GROUPS:
         marker=dict(color=colors[group], line=dict(color="white", width=1)),
         text=[f"{v:.0f}" if group == DESSERT and v >= 5 else "" for v in 100 * g["pct"]],
         textposition="inside", insidetextanchor="start",
-        textfont=dict(color="white", size=11),
+        textfont=dict(color=TEXT, size=11),  # texte foncé : contraste 6,7:1 sur l'orange
         customdata=g[["n", "n_total"]],
         hovertemplate=f"%{{y}}<br>{group} : %{{x:.0f}} % "
                       "(%{customdata[0]} recettes sur %{customdata[1]})<extra></extra>",

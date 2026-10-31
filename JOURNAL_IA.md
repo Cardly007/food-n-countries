@@ -384,3 +384,25 @@ un commit par point.
   catégories de moins de 15 recettes non affichées, et la valeur sur les 37
   pays affichés par la bascule (36 %).
 - Décision : **modifié**.
+
+### R3. Page 4 — couleurs des barres empilées
+
+- État initial : desserts en bleu foncé `#0072B2`, plats principaux en bleu
+  ciel `#56B4E9` (deux bleus voisins, différant surtout par la luminosité),
+  soupes en rose, accompagnements en gris clair ; chiffres blancs dans le
+  premier segment.
+- Critique : la couche qui porte la question de la page n'avait pas la
+  couleur d'accent utilisée partout ailleurs pour « ce qui compte »
+  (Séance 3 : cohérence et mise en évidence) ; deux bleus adjacents
+  pour les deux plus grosses couches se distinguent mal (Séance 2). Rien ne
+  disait que seule la couche de base se lit avec précision (Séance 6).
+- Alternative écartée : garder le bleu foncé en base et mettre l'orange sur
+  une autre couche (l'orange désignerait alors autre chose que le sujet).
+- Version finale : `CATEGORICAL` = orange accent (desserts, pâtisseries et
+  pains), bleu `#0072B2` (plats principaux), bleu ciel `#56B4E9` (soupes et
+  ragoûts), gris `#BDBDBD` (accompagnements et boissons). Écarts ΔE entre
+  couches voisines ≥ 24 dans toutes les simulations de daltonisme ; pas de
+  rouge/vert. Chiffres du premier segment en texte foncé (contraste 6,7:1 sur
+  l'orange, contre 2,3:1 en blanc). Sous-titre : seule la couche de base se
+  lit précisément, les autres donnent un ordre de grandeur.
+- Décision : **modifié**.
