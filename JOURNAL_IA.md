@@ -447,3 +447,21 @@ un commit par point.
     affichant l'indice de Rand ajusté sans desserts lu dans les statistiques
     du pipeline ; bascule « sans desserts » conservée.
 - Décision : **modifié**.
+
+### R5. Interface Streamlit — fin du rouge par défaut
+
+- État initial : thème Streamlit par défaut, couleur primaire rouge
+  (`#FF4B4B`) sur les puces, bascules, contrôles segmentés et curseurs.
+- Critique : le rouge signale une alerte ou une erreur et attire l'œil sur
+  des commandes, pas sur les données ; il réintroduit une couleur hors
+  palette et l'opposition rouge/vert proscrite (Séance 2).
+- Alternative écartée : orange `#E69F00` en couleur primaire. L'orange est
+  réservé à la mise en évidence dans les graphiques (top 5, desserts, pays
+  présents) ; l'utiliser aussi pour l'interface en diluerait le sens, et le
+  texte des puces sélectionnées serait peu lisible (contraste 2,2:1 sur
+  blanc).
+- Version finale : `.streamlit/config.toml`, `[theme]` avec `primaryColor`
+  bleu `#0072B2` (contraste 5,3:1 sur blanc), fond blanc, texte `#262626`,
+  fond secondaire gris très clair. Vérifié sur la page 2 (volet ouvert,
+  bascule activée) : aucun élément ne garde la couleur rouge par défaut.
+- Décision : **modifié**.
