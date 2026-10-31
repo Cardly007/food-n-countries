@@ -30,12 +30,28 @@ choice = st.segmented_control(
 ) or list(OPTIONS)[0]
 d = OPTIONS[choice].sort_values("avis_par_recette", ascending=False).reset_index(drop=True)
 median = d["avis_par_recette"].median()
-top_share = d["avis_total"].head(TOP_N).sum() / d["avis_total"].sum()
+
+
+def top_share(df):
+    """Part des avis captée par les TOP_N cuisines au plus d'avis par recette."""
+    df = df.sort_values("avis_par_recette", ascending=False)
+    return df["avis_total"].head(TOP_N).sum() / df["avis_total"].sum()
+
+
+# Deux périmètres affichés ensemble, pour que la page et le journal citent les
+# mêmes chiffres : les 45 cuisines de la vue par défaut, et les 41 catégories
+# nationales (contrôle du brief, y compris celles de moins de 15 recettes).
+share_all = top_share(att)
+share_41 = stats["controle_41_pays_part_top5"]
+n_41 = int(stats["n_categories_single_country"])
+n_41_hidden = n_41 - len(pays)
 
 chart_title(
     "Combien d'avis une recette de chaque cuisine reçoit-elle en moyenne ?",
     f"Avis par recette = nombre total d'évaluations des recettes de la cuisine ÷ "
     f"nombre de recettes (entre parenthèses). En orange : les {TOP_N} premières. "
+    f"Les {TOP_N} premières = {fmt_pct(share_all)} des avis sur les {len(att)} "
+    f"cuisines, {fmt_pct(share_41)} sur les {n_41} pays. "
     f"Trait vertical : médiane des cuisines affichées. Un « avis » mesure "
     f"l'engagement des utilisateurs, ni la qualité des recettes ni une "
     f"préférence mondiale.",
@@ -69,8 +85,10 @@ show(fig)
 
 st.caption(
     f"\\* Moins de {fmt_int(small)} recettes : moyenne fragile, à lire avec prudence. "
-    f"Les {TOP_N} premières cuisines regroupent {fmt_pct(top_share)} des "
-    f"{fmt_int(d['avis_total'].sum())} avis des cuisines affichées. Les notes "
+    f"Part des {TOP_N} premières : « {n_41} pays » = toutes les catégories "
+    f"nationales, y compris les {n_41_hidden} de moins de "
+    f"{fmt_int(stats['seuil_recettes'])} recettes non affichées ; sur les "
+    f"{len(pays)} pays affichés par la bascule, {fmt_pct(top_share(pays))}. Les notes "
     f"moyennes varient peu d'une cuisine à l'autre (de "
     f"{fmt_num(d['note_moyenne'].min(), 2)} à {fmt_num(d['note_moyenne'].max(), 2)} "
     f"sur 5) : elles ne distinguent pas les cuisines et ne sont donc pas représentées."

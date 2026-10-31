@@ -9,7 +9,7 @@ retenue. Captures de la version initiale : `docs/captures_avant/` ; version
 finale : `docs/captures_apres/`. Tableau des valeurs de contrôle :
 `docs/controles_pipeline.txt` (sortie de `data_processing/build_diversity_data.py`).
 
-> Note de transparence : la refonte (code, calculs, validation manuelle du
+> Note de transparence : la refonte (code, calculs, annotation de l'échantillon de validation du
 > type de plat, rédaction de ce journal) a été réalisée par un assistant IA
 > (Claude Code) à partir d'un brief de l'équipe. Les verdicts de
 > `data/reference/validation_type_plat.csv` ont donc été posés par l'IA :
@@ -364,4 +364,23 @@ un commit par point.
   `dish_validation.parquet` (aucune valeur en dur) ; mention explicite que les
   verdicts ont été posés par l'IA et doivent être relus par le groupe. Même
   correction sur la page Méthodologie et dans les commentaires du code.
+- Décision : **modifié**.
+
+### R2. Page 3 — cohérence des chiffres entre la page et le journal
+
+- État initial : la page affichait la part des avis captée par les 5
+  premières cuisines sur la vue affichée (vue par défaut, 45 cuisines :
+  27 %) ; le journal et le tableau de contrôle citaient 36 % sur les 41 pays.
+  Deux chiffres pour « la même » information, sans dire lesquels.
+- Critique : incohérence entre supports (Séance 3 : cohérence ; un chiffre
+  sans son périmètre n'est pas interprétable).
+- Alternative écartée : ne garder qu'un périmètre (on perdrait l'effet
+  visible des traditions régionales américaines, très suivies, qui diluent
+  la concentration : 27 % contre 36 %).
+- Version finale : sous-titre « Les 5 premières = X % des avis sur les 45
+  cuisines, Y % sur les 41 pays », les deux calculés (X depuis
+  `attention.parquet`, Y = `controle_41_pays_part_top5` du pipeline, sans
+  modifier les données) ; note précisant que les 41 pays incluent les 4
+  catégories de moins de 15 recettes non affichées, et la valeur sur les 37
+  pays affichés par la bascule (36 %).
 - Décision : **modifié**.
