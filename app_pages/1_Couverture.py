@@ -51,7 +51,9 @@ subtitle = (f"Orange : pays dont la cuisine a sa propre catégorie sur Allrecipe
 if with_regional:
     subtitle += (f"Orange clair : pays présents seulement à travers une tradition "
                  f"régionale ({fmt_int(n_indirect)} pays). ")
-subtitle += "Gris : aucune catégorie. Survolez un pays pour voir les catégories."
+subtitle += ("Gris : aucune catégorie nationale dans le catalogue"
+             + (" ni tradition régionale. " if with_regional else ". ")
+             + "Survolez un pays pour voir les catégories.")
 chart_title("Quels pays ont leur cuisine dans le catalogue ?", subtitle)
 
 fig = px.choropleth(

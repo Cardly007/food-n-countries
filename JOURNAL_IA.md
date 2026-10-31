@@ -465,3 +465,17 @@ un commit par point.
   fond secondaire gris très clair. Vérifié sur la page 2 (volet ouvert,
   bascule activée) : aucun élément ne garde la couleur rouge par défaut.
 - Décision : **modifié**.
+
+### R6. Page 1 — légende du gris sur la carte
+
+- État initial : « Gris : aucune catégorie. »
+- Critique : formulation trompeuse (Séance 3 : le sous-titre doit dire
+  exactement ce que la couleur encode). Un pays gris peut avoir des recettes
+  sur Allrecipes (dans `all_recipes.csv`, ou sous une autre étiquette) : ce
+  qui manque, c'est une **catégorie nationale** dans le catalogue de cuisines.
+  Avec la bascule des traditions régionales, les États-Unis n'ont pas non plus
+  de catégorie nationale mais ne sont pas gris.
+- Alternative écartée : « aucune recette » (faux, pour la même raison).
+- Version finale : « Gris : aucune catégorie nationale dans le catalogue » ;
+  bascule activée : « … ni tradition régionale ».
+- Décision : **modifié**.
