@@ -176,15 +176,16 @@ st.markdown(
     f"l'ordre de priorité boissons, salades, soupes, sauces, desserts et pains, puis "
     f"plat principal par défaut, et des exclusions pour les pièges connus "
     f"(« shepherd's pie », « egg rolls », « coffee cake », « sweet potato »…). "
-    f"Validation manuelle : un premier échantillon de "
+    f"Estimation de l'erreur : un premier échantillon aléatoire de "
     f"{fmt_int(val['n_echantillon_ajustement'])} recettes a servi à ajuster "
     f"les règles ({fmt_int(val['n_erreurs_ajustement'])} erreurs), puis un second "
     f"échantillon indépendant de {fmt_int(val['n_echantillon'])} recettes a servi à "
     f"mesurer : **{fmt_int(val['n_erreurs'])} erreurs, soit "
     f"{fmt_pct(val['taux_erreur'])}** (IC 95 % : {fmt_pct(val['ic95_bas'])} à "
     f"{fmt_pct(val['ic95_haut'])}), plus {fmt_int(val['n_ambigus'])} cas ambigus. "
-    f"Les erreurs sous-estiment surtout les desserts. Détail recette par recette : "
-    f"`data/reference/validation_type_plat.csv`."
+    f"Les erreurs sous-estiment surtout les desserts. Les verdicts (détail recette "
+    f"par recette dans `data/reference/validation_type_plat.csv`) ont été posés par "
+    f"l'IA : ils doivent encore être relus par le groupe."
 )
 
 st.subheader("9. Limites générales")

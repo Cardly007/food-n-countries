@@ -15,8 +15,9 @@ connus (« shepherd's pie », « egg rolls », « coffee cake », « sweet potat
 « chicken in black bean sauce »...).
 
 C'EST UNE HEURISTIQUE : son taux d'erreur est mesuré sur un échantillon
-aléatoire de 100 recettes vérifiées à la main (voir JOURNAL_IA.md et
-docs/validation_type_plat.csv).
+aléatoire de 100 recettes dont les verdicts ont été posés par l'IA, à
+relire par le groupe (voir JOURNAL_IA.md et
+data/reference/validation_type_plat.csv).
 """
 
 import re

@@ -65,14 +65,16 @@ st.caption(
     f"Cuisines à moins de {fmt_int(stats['seuil_recettes'])} recettes exclues."
 )
 st.info(
-    f"Le type de plat n'existe pas dans les données : il est déduit de mots-clés "
-    f"du titre (« cake », « soup », « salad »…). Sur {fmt_int(val['n_echantillon'])} "
-    f"recettes tirées au hasard et vérifiées à la main, {fmt_int(val['n_erreurs'])} "
-    f"étaient mal classées, soit un taux d'erreur de {fmt_pct(val['taux_erreur'])} "
-    f"(intervalle de confiance à 95 % : {fmt_pct(val['ic95_bas'])} à "
-    f"{fmt_pct(val['ic95_haut'])}). {fmt_int(val['n_desserts_manques'])} de ces "
-    f"erreurs sont des desserts ou des pains classés en plats : la part des desserts "
-    f"est donc plutôt sous-estimée. Les écarts de quelques points entre deux "
-    f"cuisines ne sont pas interprétables.",
+    f"Le type de plat n'existe pas dans les données : chaque recette est classée par "
+    f"mots-clés du titre (« cake », « soup », « salad »…). Taux d'erreur estimé : "
+    f"{fmt_pct(val['taux_erreur'])} (intervalle de confiance à 95 % : "
+    f"{fmt_pct(val['ic95_bas'])} à {fmt_pct(val['ic95_haut'])}), calculé sur un "
+    f"échantillon aléatoire de {fmt_int(val['n_echantillon'])} recettes "
+    f"(`validation_type_plat.csv`). Les verdicts de cet échantillon ont été posés "
+    f"par l'IA et doivent encore être relus par le groupe. "
+    f"{fmt_int(val['n_desserts_manques'])} des {fmt_int(val['n_erreurs'])} erreurs "
+    f"relevées sont des desserts ou des pains classés en plats : la part des "
+    f"desserts est donc plutôt sous-estimée. Les écarts de quelques points entre "
+    f"deux cuisines ne sont pas interprétables.",
     icon=":material/info:",
 )

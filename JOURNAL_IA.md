@@ -11,7 +11,7 @@ finale : `docs/captures_apres/`. Tableau des valeurs de contrôle :
 
 > Note de transparence : la refonte (code, calculs, validation manuelle du
 > type de plat, rédaction de ce journal) a été réalisée par un assistant IA
-> (Claude Code) à partir d'un brief de l'équipe. Les verdicts « à la main » de
+> (Claude Code) à partir d'un brief de l'équipe. Les verdicts de
 > `data/reference/validation_type_plat.csv` ont donc été posés par l'IA :
 > **l'équipe doit les relire** avant la soutenance (le fichier est fait pour
 > ça : une ligne par recette, prédiction, verdict, commentaire).
@@ -340,3 +340,28 @@ pas comme un résultat.
 
 Aucun nom de colonne brut n'est affiché ; tous les chiffres des textes sont
 calculés (`diversity_stats.parquet` et autres fichiers du pipeline).
+
+---
+
+## 4. Corrections après revue des graphiques au regard du cours
+
+Revue de l'équipe, après la première version complète. Une entrée par point,
+un commit par point.
+
+### R1. Page 4 — texte de l'encadré sur le type de plat
+
+- État initial : « Sur 100 recettes tirées au hasard et **vérifiées à la
+  main**, 9 étaient mal classées… » ; la page Méthodologie parlait de
+  « validation manuelle ».
+- Critique : affirmation inexacte. Les verdicts de l'échantillon ont été posés
+  par l'IA, pas par un humain ; présenter un contrôle comme humain alors qu'il
+  ne l'est pas surestime la fiabilité (Séance 1 : honnêteté du cadrage ; audit
+  critique de l'IA demandé par le sujet).
+- Alternative écartée : retirer complètement le taux d'erreur (on perdrait la
+  seule mesure disponible de la fiabilité de l'heuristique).
+- Version finale : « chaque recette est classée par mots-clés du titre » ;
+  « taux d'erreur estimé », calculé depuis `validation_type_plat.csv` via
+  `dish_validation.parquet` (aucune valeur en dur) ; mention explicite que les
+  verdicts ont été posés par l'IA et doivent être relus par le groupe. Même
+  correction sur la page Méthodologie et dans les commentaires du code.
+- Décision : **modifié**.
