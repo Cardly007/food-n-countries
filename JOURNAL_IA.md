@@ -406,3 +406,44 @@ un commit par point.
   l'orange, contre 2,3:1 en blanc). Sous-titre : seule la couche de base se
   lit précisément, les autres donnent un ordre de grandeur.
 - Décision : **modifié**.
+
+### R4. Page 2 — lisibilité de la heatmap
+
+- État initial : 45 lignes × 17 colonnes (765 cases) affichées d'emblée,
+  lignes rangées par familles de cuisines issues d'une classification
+  hiérarchique, avec le nom des familles à droite ; couleur du texte des
+  cases laissée à Plotly (texte foncé sur des cases moyennement foncées :
+  contraste ≈ 3,9:1).
+- Critique : trop d'information pour la mémoire de travail (Séance 2) ; pas
+  de découpage de la complexité (Séance 3) ; regroupement principal fondé sur
+  des familles peu stables (indice de Rand ajusté 0,57 sans les desserts)
+  alors que le lecteur raisonne en géographie (cohérence avec la page 1).
+- Alternatives écartées : une couleur par continent (double encodage, et une
+  seconde palette sur une heatmap déjà en teinte séquentielle) ; tri des
+  lignes par fréquence moyenne (rapproche des cuisines aux profils opposés
+  qui ont le même « volume » d'ingrédients) ; petits multiples par continent
+  (axes répétés, comparaison entre continents plus difficile).
+- Version finale :
+  - lignes regroupées **par continent**, même rattachement que la page 1
+    (traditions régionales comprises ; la cuisine juive dans un bloc « Sans
+    territoire ») ; une ligne d'en-tête vide par bloc porte le nom du
+    continent et crée l'espace : le regroupement passe par la position ;
+  - dans chaque bloc, ordre de la classification hiérarchique existante
+    (profils voisins côte à côte) ;
+  - vue par défaut : 13 cuisines, les 3 mieux représentées de chaque
+    continent (plus de recettes, à égalité plus d'avis) parmi celles d'au
+    moins 30 recettes ; bascule « Tout afficher (45 cuisines) ». Limite :
+    à cause du plafond de collecte, « mieux représentée » départage souvent
+    des cuisines à 1 ou 2 recettes près (le Japon et la Thaïlande ne sont pas
+    dans la vue par défaut) ;
+  - 11 ingrédients par défaut : ceux dont la fréquence varie le plus d'une
+    cuisine à l'autre (écart-type sur les 45 cuisines, toutes recettes,
+    calculé dans la page) ; le sel, presque universel, sort de la vue ;
+    bascule « Tous les ingrédients (17) » ;
+  - une seule teinte (Blues), `zmin = 0`, `zmax = 100`, valeur dans chaque
+    case ; couleur du texte choisie case par case (blanc ou noir) : contraste
+    minimal 4,6:1 sur toute l'échelle (WCAG AA) ;
+  - familles en filtre secondaire, dans un volet « regroupement indicatif »
+    affichant l'indice de Rand ajusté sans desserts lu dans les statistiques
+    du pipeline ; bascule « sans desserts » conservée.
+- Décision : **modifié**.
