@@ -2,7 +2,7 @@ import streamlit as st
 
 from src.ingredients import DIVERSITY_INGREDIENTS, INGREDIENT_LABELS
 from src.load_data import load_processed, load_stats
-from src.theme import fmt_int, fmt_num, fmt_pct
+from src.theme import fmt_int, fmt_num, fmt_pct, page_header
 
 stats = load_stats()
 overlap = load_processed("overlap_stats").iloc[0]
@@ -11,15 +11,12 @@ continents = load_processed("continent_summary")
 families = load_processed("cuisine_families")
 val = load_processed("dish_validation").iloc[0]
 
-st.title("Méthodologie et limites")
-
-st.markdown(
-    """
-Cette page centralise les choix méthodologiques et leurs limites. Tous les
-chiffres sont recalculés depuis les données par
-`data_processing/build_diversity_data.py` ; le détail des décisions et de
-l'audit de l'IA est dans `JOURNAL_IA.md`.
-"""
+page_header(
+    "methodologie",
+    "Méthodologie et limites",
+    "Cette page centralise les choix méthodologiques et leurs limites. Tous les "
+    "chiffres sont recalculés depuis les données par data_processing/build_diversity_data.py "
+    "; le détail des décisions et de l'audit de l'IA est dans JOURNAL_IA.md.",
 )
 
 st.subheader("1. Deux tables, pas une seule population de recettes")

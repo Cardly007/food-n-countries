@@ -6,7 +6,7 @@ import streamlit as st
 from src.ingredients import INGREDIENT_LABELS
 from src.load_data import load_processed, load_stats
 from src.theme import (
-    MUTED, SEQUENTIAL, TEXT, apply_theme, chart_title, fmt_int, fmt_num, show,
+    MUTED, SEQUENTIAL, TEXT, apply_theme, chart_title, fmt_int, fmt_num, page_header, show,
 )
 
 stats = load_stats()
@@ -14,11 +14,12 @@ freq = load_processed("ingredient_freq")
 families = load_processed("cuisine_families")
 catalog = load_processed("cuisine_catalog")
 
-st.title("2. Les cuisines sont-elles vraiment différentes dans l'assiette ?")
-st.caption(
+page_header(
+    "ingredients",
+    "2. Les cuisines sont-elles vraiment différentes dans l'assiette ?",
     "Deuxième question : le contenu. Au-delà de l'étiquette « grecque » ou "
     "« thaïlandaise », les recettes de chaque cuisine utilisent-elles des "
-    "ingrédients différents ?"
+    "ingrédients différents ?",
 )
 
 # --- Filtres ----------------------------------------------------------------------

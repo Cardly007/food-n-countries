@@ -188,6 +188,33 @@ CUISINE_LABELS_FR = {
     "Amish and Mennonite": "Amish et mennonite",
 }
 
+# Noms français des pays (utilisés notamment pour l'affichage par pays).
+COUNTRY_NAMES_FR = {
+    "Canadian": "Canada", "Brazilian": "Brésil", "Filipino": "Philippines",
+    "Cuban": "Cuba", "Chinese": "Chine", "Russian": "Russie",
+    "Indian": "Inde", "French": "France", "Italian": "Italie",
+    "Japanese": "Japon", "Greek": "Grèce", "German": "Allemagne",
+    "Vietnamese": "Vietnam", "Thai": "Thaïlande", "Spanish": "Espagne",
+    "Polish": "Pologne", "Korean": "Corée du Sud", "Portuguese": "Portugal",
+    "Lebanese": "Liban", "Persian": "Iran", "Jamaican": "Jamaïque",
+    "Peruvian": "Pérou", "Turkish": "Turquie", "Danish": "Danemark",
+    "Swedish": "Suède", "Argentinian": "Argentine", "Norwegian": "Norvège",
+    "Pakistani": "Pakistan", "Malaysian": "Malaisie",
+    "Indonesian": "Indonésie", "Israeli": "Israël", "Chilean": "Chili",
+    "Dutch": "Pays-Bas", "Austrian": "Autriche",
+    "South African": "Afrique du Sud", "Finnish": "Finlande",
+    "Bangladeshi": "Bangladesh", "Colombian": "Colombie", "Swiss": "Suisse",
+    "Belgian": "Belgique", "Puerto Rican": "Porto Rico",
+    "Australian and New Zealander": "Australie et Nouvelle-Zélande",
+    "Scandinavian": "Scandinavie",
+    "Soul Food": "Soul food (afro-américaine)",
+    "Cajun and Creole": "Cajun et créole (Louisiane)",
+    "Tex-Mex": "Tex-Mex",
+    "Southern Recipes": "Sud des États-Unis",
+    "Jewish": "Juive",
+    "Amish and Mennonite": "Amish et mennonite",
+}
+
 
 # ---------------------------------------------------------------------------
 # Rattachement INDIRECT des catégories non nationales (bascule de la page 1).

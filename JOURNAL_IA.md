@@ -1,7 +1,7 @@
 # Journal de bord — audit critique de l'IA
 
 Projet : « Allrecipes reflète-t-elle la diversité culinaire mondiale ? »
-(M2 MIAGE Dauphine, Visualisation de données, Séances 1 à 6).
+(M2 MIAGE Dauphine, Visualisation de données).
 
 Ce journal documente, graphique par graphique, la proposition brute de l'IA,
 sa critique au regard du cours, les alternatives écartées et la version
@@ -304,8 +304,9 @@ pas comme un résultat.
 - Version finale : seule barre horizontale du site, triée, gris + accent
   orange sur les 5 premières, médiane en pointillé, valeurs en étiquettes
   (axe sans graduation, redondant), axe à zéro, effectif et astérisque si
-  < 30 recettes. Notes moyennes (4,25–4,73) en annotation seulement :
-  elles ne discriminent pas.
+  < 30 recettes. Libellés adaptés au filtre : noms de cuisines en vue globale
+  (ex. « Française ») et noms de pays en vue « Pays seulement » (ex. « France »).
+  Notes moyennes (4,25–4,73) en annotation seulement : elles ne discriminent pas.
 - Décision : **nouveau**.
 
 ### Page 4 — Barres empilées à 100 % par type de plat

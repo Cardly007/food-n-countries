@@ -5,7 +5,7 @@ import streamlit as st
 from src.load_data import load_processed, load_stats
 from src.theme import (
     ACCENT, ACCENT_LIGHT, DIV_NEG, DIV_POS, GREY, GREY_LIGHT, MUTED, apply_theme,
-    chart_title, fmt_int, fmt_num, fmt_pct, show,
+    chart_title, fmt_int, fmt_num, fmt_pct, page_header, show,
 )
 
 stats = load_stats()
@@ -13,11 +13,12 @@ catalog = load_processed("cuisine_catalog")
 continents = load_processed("continent_summary")
 presence = load_processed("map_presence")
 
-st.title("1. Le catalogue couvre-t-il le monde ?")
-st.caption(
-    "Première question : l'offre. On regarde quelles cuisines **existent** "
+page_header(
+    "couverture",
+    "1. Le catalogue couvre-t-il le monde ?",
+    "Première question : l'offre. On regarde quelles cuisines existent "
     "dans le catalogue d'Allrecipes, sans tenir compte de leur nombre de "
-    "recettes (voir l'encadré en bas de page)."
+    "recettes (voir l'encadré en bas de page).",
 )
 
 with_regional = st.toggle(
