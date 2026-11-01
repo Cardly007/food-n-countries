@@ -9,9 +9,9 @@ retenue. Captures de la version initiale : `docs/captures_avant/` ; version
 finale : `docs/captures_apres/`. Tableau des valeurs de contrôle :
 `docs/controles_pipeline.txt` (sortie de `data_processing/build_diversity_data.py`).
 
-> Note de transparence : la refonte (code, calculs, validation manuelle du
+> Note de transparence : la refonte (code, calculs, annotation de l'échantillon de validation du
 > type de plat, rédaction de ce journal) a été réalisée par un assistant IA
-> (Claude Code) à partir d'un brief de l'équipe. Les verdicts « à la main » de
+> (Claude Code) à partir d'un brief de l'équipe. Les verdicts de
 > `data/reference/validation_type_plat.csv` ont donc été posés par l'IA :
 > **l'équipe doit les relire** avant la soutenance (le fichier est fait pour
 > ça : une ligne par recette, prédiction, verdict, commentaire).
@@ -341,3 +341,158 @@ pas comme un résultat.
 
 Aucun nom de colonne brut n'est affiché ; tous les chiffres des textes sont
 calculés (`diversity_stats.parquet` et autres fichiers du pipeline).
+
+---
+
+## 4. Corrections après revue des graphiques au regard du cours
+
+Revue de l'équipe, après la première version complète. Une entrée par point,
+un commit par point.
+
+### R1. Page 4 — texte de l'encadré sur le type de plat
+
+- État initial : « Sur 100 recettes tirées au hasard et **vérifiées à la
+  main**, 9 étaient mal classées… » ; la page Méthodologie parlait de
+  « validation manuelle ».
+- Critique : affirmation inexacte. Les verdicts de l'échantillon ont été posés
+  par l'IA, pas par un humain ; présenter un contrôle comme humain alors qu'il
+  ne l'est pas surestime la fiabilité (Séance 1 : honnêteté du cadrage ; audit
+  critique de l'IA demandé par le sujet).
+- Alternative écartée : retirer complètement le taux d'erreur (on perdrait la
+  seule mesure disponible de la fiabilité de l'heuristique).
+- Version finale : « chaque recette est classée par mots-clés du titre » ;
+  « taux d'erreur estimé », calculé depuis `validation_type_plat.csv` via
+  `dish_validation.parquet` (aucune valeur en dur) ; mention explicite que les
+  verdicts ont été posés par l'IA et doivent être relus par le groupe. Même
+  correction sur la page Méthodologie et dans les commentaires du code.
+- Décision : **modifié**.
+
+### R2. Page 3 — cohérence des chiffres entre la page et le journal
+
+- État initial : la page affichait la part des avis captée par les 5
+  premières cuisines sur la vue affichée (vue par défaut, 45 cuisines :
+  27 %) ; le journal et le tableau de contrôle citaient 36 % sur les 41 pays.
+  Deux chiffres pour « la même » information, sans dire lesquels.
+- Critique : incohérence entre supports (Séance 3 : cohérence ; un chiffre
+  sans son périmètre n'est pas interprétable).
+- Alternative écartée : ne garder qu'un périmètre (on perdrait l'effet
+  visible des traditions régionales américaines, très suivies, qui diluent
+  la concentration : 27 % contre 36 %).
+- Version finale : sous-titre « Les 5 premières = X % des avis sur les 45
+  cuisines, Y % sur les 41 pays », les deux calculés (X depuis
+  `attention.parquet`, Y = `controle_41_pays_part_top5` du pipeline, sans
+  modifier les données) ; note précisant que les 41 pays incluent les 4
+  catégories de moins de 15 recettes non affichées, et la valeur sur les 37
+  pays affichés par la bascule (36 %).
+- Décision : **modifié**.
+
+### R3. Page 4 — couleurs des barres empilées
+
+- État initial : desserts en bleu foncé `#0072B2`, plats principaux en bleu
+  ciel `#56B4E9` (deux bleus voisins, différant surtout par la luminosité),
+  soupes en rose, accompagnements en gris clair ; chiffres blancs dans le
+  premier segment.
+- Critique : la couche qui porte la question de la page n'avait pas la
+  couleur d'accent utilisée partout ailleurs pour « ce qui compte »
+  (Séance 3 : cohérence et mise en évidence) ; deux bleus adjacents
+  pour les deux plus grosses couches se distinguent mal (Séance 2). Rien ne
+  disait que seule la couche de base se lit avec précision (Séance 6).
+- Alternative écartée : garder le bleu foncé en base et mettre l'orange sur
+  une autre couche (l'orange désignerait alors autre chose que le sujet).
+- Version finale : `CATEGORICAL` = orange accent (desserts, pâtisseries et
+  pains), bleu `#0072B2` (plats principaux), bleu ciel `#56B4E9` (soupes et
+  ragoûts), gris `#BDBDBD` (accompagnements et boissons). Écarts ΔE entre
+  couches voisines ≥ 24 dans toutes les simulations de daltonisme ; pas de
+  rouge/vert. Chiffres du premier segment en texte foncé (contraste 6,7:1 sur
+  l'orange, contre 2,3:1 en blanc). Sous-titre : seule la couche de base se
+  lit précisément, les autres donnent un ordre de grandeur.
+- Décision : **modifié**.
+
+### R4. Page 2 — lisibilité de la heatmap
+
+- État initial : 45 lignes × 17 colonnes (765 cases) affichées d'emblée,
+  lignes rangées par familles de cuisines issues d'une classification
+  hiérarchique, avec le nom des familles à droite ; couleur du texte des
+  cases laissée à Plotly (texte foncé sur des cases moyennement foncées :
+  contraste ≈ 3,9:1).
+- Critique : trop d'information pour la mémoire de travail (Séance 2) ; pas
+  de découpage de la complexité (Séance 3) ; regroupement principal fondé sur
+  des familles peu stables (indice de Rand ajusté 0,57 sans les desserts)
+  alors que le lecteur raisonne en géographie (cohérence avec la page 1).
+- Alternatives écartées : une couleur par continent (double encodage, et une
+  seconde palette sur une heatmap déjà en teinte séquentielle) ; tri des
+  lignes par fréquence moyenne (rapproche des cuisines aux profils opposés
+  qui ont le même « volume » d'ingrédients) ; petits multiples par continent
+  (axes répétés, comparaison entre continents plus difficile).
+- Version finale :
+  - lignes regroupées **par continent**, même rattachement que la page 1
+    (traditions régionales comprises ; la cuisine juive dans un bloc « Sans
+    territoire ») ; une ligne d'en-tête vide par bloc porte le nom du
+    continent et crée l'espace : le regroupement passe par la position ;
+  - dans chaque bloc, ordre de la classification hiérarchique existante
+    (profils voisins côte à côte) ;
+  - vue par défaut : 13 cuisines, les 3 mieux représentées de chaque
+    continent (plus de recettes, à égalité plus d'avis) parmi celles d'au
+    moins 30 recettes ; bascule « Tout afficher (45 cuisines) ». Limite :
+    à cause du plafond de collecte, « mieux représentée » départage souvent
+    des cuisines à 1 ou 2 recettes près (le Japon et la Thaïlande ne sont pas
+    dans la vue par défaut) ;
+  - 11 ingrédients par défaut : ceux dont la fréquence varie le plus d'une
+    cuisine à l'autre (écart-type sur les 45 cuisines, toutes recettes,
+    calculé dans la page) ; le sel, presque universel, sort de la vue ;
+    bascule « Tous les ingrédients (17) » ;
+  - une seule teinte (Blues), `zmin = 0`, `zmax = 100`, valeur dans chaque
+    case ; couleur du texte choisie case par case (blanc ou noir) : contraste
+    minimal 4,6:1 sur toute l'échelle (WCAG AA) ;
+  - familles en filtre secondaire, dans un volet « regroupement indicatif »
+    affichant l'indice de Rand ajusté sans desserts lu dans les statistiques
+    du pipeline ; bascule « sans desserts » conservée.
+- Décision : **modifié**.
+
+### R5. Interface Streamlit — fin du rouge par défaut
+
+- État initial : thème Streamlit par défaut, couleur primaire rouge
+  (`#FF4B4B`) sur les puces, bascules, contrôles segmentés et curseurs.
+- Critique : le rouge signale une alerte ou une erreur et attire l'œil sur
+  des commandes, pas sur les données ; il réintroduit une couleur hors
+  palette et l'opposition rouge/vert proscrite (Séance 2).
+- Alternative écartée : orange `#E69F00` en couleur primaire. L'orange est
+  réservé à la mise en évidence dans les graphiques (top 5, desserts, pays
+  présents) ; l'utiliser aussi pour l'interface en diluerait le sens, et le
+  texte des puces sélectionnées serait peu lisible (contraste 2,2:1 sur
+  blanc).
+- Version finale : `.streamlit/config.toml`, `[theme]` avec `primaryColor`
+  bleu `#0072B2` (contraste 5,3:1 sur blanc), fond blanc, texte `#262626`,
+  fond secondaire gris très clair. Vérifié sur la page 2 (volet ouvert,
+  bascule activée) : aucun élément ne garde la couleur rouge par défaut.
+- Décision : **modifié**.
+
+### R6. Page 1 — légende du gris sur la carte
+
+- État initial : « Gris : aucune catégorie. »
+- Critique : formulation trompeuse (Séance 3 : le sous-titre doit dire
+  exactement ce que la couleur encode). Un pays gris peut avoir des recettes
+  sur Allrecipes (dans `all_recipes.csv`, ou sous une autre étiquette) : ce
+  qui manque, c'est une **catégorie nationale** dans le catalogue de cuisines.
+  Avec la bascule des traditions régionales, les États-Unis n'ont pas non plus
+  de catégorie nationale mais ne sont pas gris.
+- Alternative écartée : « aucune recette » (faux, pour la même raison).
+- Version finale : « Gris : aucune catégorie nationale dans le catalogue » ;
+  bascule activée : « … ni tradition régionale ».
+- Décision : **modifié**.
+
+### Fusion avec la branche « ameliorer graphiques » (PR #2)
+
+La branche de l'équipe (identité visuelle pastel, en-têtes de page, noms de pays
+en vue « Pays seulement », vue par type de plat en page 4) partait d'un état
+antérieur aux corrections R1 à R6. Résolution des conflits en gardant les deux
+apports :
+- page 2 : heatmap par continent (R4) + en-tête de page de l'équipe ;
+- page 3 : libellés pays / cuisines de l'équipe + part des 5 premières sur les
+  deux périmètres (R2) ;
+- page 4 : sélecteur de type de plat et choix du tri de l'équipe + couleurs,
+  contraste du texte, mention « seule la couche de base se lit précisément » et
+  encadré corrigé (R1, R3). Texte du segment de base : blanc seulement sur le
+  bleu foncé, foncé sur les autres couleurs ;
+- accueil : « validation manuelle » remplacé par « estimation de l'erreur de
+  classement des plats » (cohérence avec R1).

@@ -162,7 +162,7 @@ st.markdown(
             margin-bottom: 4px;
         ">{t_m['tag']}</span>
         <div style="font-size: 0.88rem; color: #2D251E; line-height: 1.4;">
-            Tous les détails de calculs, seuils de significativité et validation manuelle sont documentés avec transparence dans la page dédiée.
+            Tous les détails de calculs, les seuils retenus et l’estimation de l’erreur de classement des plats sont documentés dans la page dédiée.
         </div>
     </div>
     """,

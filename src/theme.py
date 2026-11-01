@@ -35,10 +35,12 @@ DIV_NEUTRAL = GREY
 # Séquentielle (heatmap) : une seule teinte.
 SEQUENTIAL = "Blues"
 
-# Catégorielle (4 groupes au maximum dans l'application) : Okabe-Ito. Le
-# gris est éclairci (#999999 -> #CCCCCC) : en simulation de deutéranopie et
-# de protanopie, le rose #CC79A7 devenait presque le même gris moyen.
-CATEGORICAL = ["#0072B2", "#56B4E9", "#CC79A7", "#CCCCCC"]
+# Catégorielle (4 groupes, page 4) : la couche de base, sujet de la page,
+# prend l'accent orange (« ce qui compte » partout dans l'appli) ; les autres
+# couches sont des teintes distinctes Okabe-Ito (bleu, bleu ciel) et le gris
+# de fond. Écarts ΔE ≥ 24 entre couches voisines, y compris en simulation de
+# deutéranopie, protanopie et tritanopie. Pas de rouge/vert.
+CATEGORICAL = [ACCENT, "#0072B2", "#56B4E9", GREY]
 
 TEXT = "#262626"
 MUTED = "#6B6B6B"

@@ -279,17 +279,18 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 
 def build_dish_validation() -> pd.DataFrame:
-    """Taux d'erreur mesuré sur l'échantillon 2 (vérifié à la main, tiré
+    """Taux d'erreur mesuré sur l'échantillon 2 (verdicts posés par l'IA, à relire
+    par le groupe ; tiré
     APRÈS l'ajustement des règles sur l'échantillon 1)."""
     val = pd.read_csv(REF_DIR / "validation_type_plat.csv")
     mesure = val[val["echantillon"] == 2]
     # Garde-fou : l'heuristique actuelle doit reproduire les prédictions
-    # vérifiées ; sinon le taux mesuré ne s'applique plus.
+    # annotées ; sinon le taux mesuré ne s'applique plus.
     drift = (mesure["name"].map(classify_dish) != mesure["groupe_predit"]).sum()
     if drift:
         raise RuntimeError(
             f"{drift} prédictions de l'échantillon de validation ont changé : "
-            "le taux d'erreur mesuré n'est plus valable, re-valider à la main.")
+            "le taux d'erreur mesuré n'est plus valable, refaire l'annotation de l'échantillon.")
     n = len(mesure)
     k = int((mesure["statut"] == "erreur").sum())
     amb = int((mesure["statut"] == "ambigu").sum())

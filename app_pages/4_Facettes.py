@@ -53,8 +53,10 @@ if selected_view == VIEW_ALL:
         "Quelle part des recettes de chaque cuisine sont des desserts, des plats, des soupes ou des accompagnements ?",
         f"Chaque barre = 100 % des recettes de la cuisine (effectif entre parenthèses, "
         f"* = moins de {fmt_int(small)} recettes). Cuisines triées par part de "
-        f"{sort_group.lower()} (premier segment à gauche). Type de plat "
-        "déduit du titre de la recette (heuristique, voir ci-dessous).",
+        f"{sort_group.lower()} (premier segment à gauche) : c'est la seule couche qui "
+        "se lit précisément, car elle part de zéro ; les autres ne donnent qu'un ordre "
+        "de grandeur. Type de plat déduit du titre de la recette (heuristique, voir "
+        "ci-dessous).",
     )
 
     fig = go.Figure()
@@ -65,7 +67,8 @@ if selected_view == VIEW_ALL:
             marker=dict(color=colors[group], line=dict(color="white", width=1)),
             text=[f"{v:.0f}" if group == sort_group and v >= 5 else "" for v in 100 * g["pct"]],
             textposition="inside", insidetextanchor="start",
-            textfont=dict(color="white", size=11),
+            # Texte foncé sur l'orange, le bleu ciel et le gris ; blanc sur le bleu foncé.
+            textfont=dict(color="white" if colors[sort_group] == "#0072B2" else TEXT, size=11),
             customdata=g[["n", "n_total"]],
             hovertemplate=f"%{{y}}<br>{group} : %{{x:.0f}} % "
                           "(%{customdata[0]} recettes sur %{customdata[1]})<extra></extra>",
@@ -149,14 +152,16 @@ else:
     )
 
 st.info(
-    f"Le type de plat n'existe pas dans les données : il est déduit de mots-clés "
-    f"du titre (« cake », « soup », « salad »…). Sur {fmt_int(val['n_echantillon'])} "
-    f"recettes tirées au hasard et vérifiées à la main, {fmt_int(val['n_erreurs'])} "
-    f"étaient mal classées, soit un taux d'erreur de {fmt_pct(val['taux_erreur'])} "
-    f"(intervalle de confiance à 95 % : {fmt_pct(val['ic95_bas'])} à "
-    f"{fmt_pct(val['ic95_haut'])}). {fmt_int(val['n_desserts_manques'])} de ces "
-    f"erreurs sont des desserts ou des pains classés en plats : la part des desserts "
-    f"est donc plutôt sous-estimée. Les écarts de quelques points entre deux "
-    f"cuisines ne sont pas interprétables.",
+    f"Le type de plat n'existe pas dans les données : chaque recette est classée par "
+    f"mots-clés du titre (« cake », « soup », « salad »…). Taux d'erreur estimé : "
+    f"{fmt_pct(val['taux_erreur'])} (intervalle de confiance à 95 % : "
+    f"{fmt_pct(val['ic95_bas'])} à {fmt_pct(val['ic95_haut'])}), calculé sur un "
+    f"échantillon aléatoire de {fmt_int(val['n_echantillon'])} recettes "
+    f"(`validation_type_plat.csv`). Les verdicts de cet échantillon ont été posés "
+    f"par l'IA et doivent encore être relus par le groupe. "
+    f"{fmt_int(val['n_desserts_manques'])} des {fmt_int(val['n_erreurs'])} erreurs "
+    f"relevées sont des desserts ou des pains classés en plats : la part des "
+    f"desserts est donc plutôt sous-estimée. Les écarts de quelques points entre "
+    f"deux cuisines ne sont pas interprétables.",
     icon=":material/info:",
 )
