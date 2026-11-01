@@ -79,3 +79,60 @@ def staple_frequency_by_group(df: pd.DataFrame, group_col: str) -> pd.DataFrame:
         for group, pct in tmp.items():
             rows.append({group_col: group, "ingredient": kw, "pct_recipes": pct})
     return pd.DataFrame(rows)
+
+
+# ---------------------------------------------------------------------------
+# Vocabulaire de l'axe 2 (refonte « diversité »), AVEC gestion des pluriels.
+#
+# BUG CORRIGÉ : les motifs ci-dessus (`\begg\b`, `\bonion\b`...) ne
+# reconnaissent pas « eggs » ni « onions ». Or le pluriel est la forme la
+# plus fréquente dans les listes d'ingrédients (« 2 large eggs ») : la
+# fréquence de l'œuf était donc fortement sous-estimée. Les motifs suivants
+# sont explicites et testés (voir JOURNAL_IA.md).
+#
+# Choix de périmètre, documentés :
+# - butter : exclut « peanut butter », « buttermilk » (et « butternut ») ;
+# - milk : exclut « coconut milk » (lait végétal, marqueur d'autres cuisines)
+#   et « buttermilk » ;
+# - rice : exclut « rice vinegar » et « rice wine » (condiments) ;
+# - ginger : inclut « gingerroot », exclut « gingersnap » (biscuit).
+# ---------------------------------------------------------------------------
+DIVERSITY_INGREDIENTS = {
+    "salt": r"\bsalt\b",
+    "sugar": r"\bsugars?\b",
+    "butter": r"(?<!peanut )\bbutter\b",
+    "flour": r"\bflours?\b",
+    "egg": r"\beggs?\b",
+    "milk": r"(?<!coconut )\bmilk\b",
+    "garlic": r"\bgarlic\b",
+    "onion": r"\bonions?\b",
+    "olive oil": r"\bolive oil\b",
+    "tomato": r"\btomato(?:es)?\b",
+    "lemon": r"\blemons?\b",
+    "soy sauce": r"\bsoy sauce\b",
+    "ginger": r"\bginger(?:root)?\b",
+    "cumin": r"\bcumin\b",
+    "chicken": r"\bchicken\b",
+    "rice": r"\brice\b(?!\s+(?:vinegar|wine))",
+    "cheese": r"\bcheeses?\b",
+}
+
+# Libellés affichés (français), dans l'ordre des colonnes de la heatmap :
+# d'abord les ingrédients « universels » de la pâtisserie et de la base
+# salée, puis les marqueurs plus distinctifs.
+INGREDIENT_LABELS = {
+    "salt": "Sel", "sugar": "Sucre", "butter": "Beurre", "flour": "Farine",
+    "egg": "Œuf", "milk": "Lait", "cheese": "Fromage", "garlic": "Ail",
+    "onion": "Oignon", "tomato": "Tomate", "olive oil": "Huile d'olive",
+    "lemon": "Citron", "chicken": "Poulet", "rice": "Riz",
+    "soy sauce": "Sauce soja", "ginger": "Gingembre", "cumin": "Cumin",
+}
+
+
+def ingredient_presence(ingredients: pd.Series) -> pd.DataFrame:
+    """Une colonne booléenne par ingrédient de DIVERSITY_INGREDIENTS."""
+    text = ingredients.fillna("").astype(str).str.lower()
+    return pd.DataFrame({
+        name: text.str.contains(pattern, regex=True)
+        for name, pattern in DIVERSITY_INGREDIENTS.items()
+    })
