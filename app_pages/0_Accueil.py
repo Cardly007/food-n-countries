@@ -1,22 +1,39 @@
 import streamlit as st
 
 from src.load_data import load_processed, load_stats
-from src.theme import fmt_int, kpi
+from src.theme import PAGE_THEMES, fmt_int, kpi, page_header
 
 stats = load_stats()
 overlap = load_processed("overlap_stats").iloc[0]
 
-st.title("Allrecipes reflète-t-elle la diversité culinaire mondiale ?")
+page_header(
+    "accueil",
+    "Allrecipes reflète-t-elle la diversité culinaire mondiale ?",
+)
 
-with st.container(border=True):
-    st.markdown(
-        "**À qui s'adresse cette application ?** Aux responsables éditoriaux et "
-        "produit d'une plateforme de recettes.  \n"
-        "**Pour décider quoi ?** Quelles cuisines ajouter au catalogue ou mettre "
-        "en avant.  \n"
-        "**Question centrale :** le catalogue d'Allrecipes reflète-t-il la "
-        "diversité culinaire mondiale ?"
-    )
+st.markdown(
+    """
+    <div style="
+        background-color: #FFFDFB;
+        border: 1px solid #ECE6DD;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    ">
+        <div style="margin-bottom: 8px; font-size: 0.95rem;">
+            <b style="color: #2D251E;">À qui s'adresse cette application ?</b> Aux responsables éditoriaux et produit d'une plateforme de recettes.
+        </div>
+        <div style="margin-bottom: 8px; font-size: 0.95rem;">
+            <b style="color: #2D251E;">Pour décider quoi ?</b> Quelles cuisines ajouter au catalogue ou mettre en avant.
+        </div>
+        <div style="font-size: 0.95rem;">
+            <b style="color: #E06D53;">Question centrale :</b> le catalogue d'Allrecipes reflète-t-il la diversité culinaire mondiale ?
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -33,6 +50,7 @@ with c1:
             f"classées par cuisine."
         ),
         sub=f"dont {fmt_int(overlap.n_cuisines)} classées par cuisine",
+        theme_key="accueil",
     )
 with c2:
     kpi(
@@ -40,6 +58,7 @@ with c2:
         help="Catégories définies par Allrecipes : pays, régions multi-pays, "
              "traditions régionales américaines et communautés.",
         sub=f"{fmt_int(stats['n_categories_single_country'])} correspondent à un seul pays",
+        theme_key="couverture",
     )
 with c3:
     kpi(
@@ -47,6 +66,7 @@ with c3:
         help="Somme des évaluations (étoiles) laissées par les utilisateurs sur les "
              "recettes classées par cuisine.",
         sub="sur les recettes classées par cuisine",
+        theme_key="attention",
     )
 
 st.subheader("Le parcours : quatre questions")
@@ -55,23 +75,53 @@ st.caption("De l'offre au contenu, puis à l'attention du public et aux facettes
 steps = [
     ("app_pages/1_Couverture.py", "1. Couverture", ":material/public:",
      "Le catalogue couvre-t-il le monde ?",
-     "Quels pays ont une cuisine proposée, et le poids de chaque continent suit-il sa population ?"),
+     "Quels pays ont une cuisine proposée, et le poids de chaque continent suit-il sa population ?",
+     "couverture"),
     ("app_pages/2_Ingredients.py", "2. Ingrédients", ":material/grid_on:",
      "Les cuisines sont-elles vraiment différentes dans l'assiette ?",
-     f"Fréquence de {fmt_int(stats['n_ingredients'])} ingrédients dans chaque cuisine, regroupées en familles."),
+     f"Fréquence de {fmt_int(stats['n_ingredients'])} ingrédients dans chaque cuisine, regroupées en familles.",
+     "ingredients"),
     ("app_pages/3_Attention.py", "3. Attention", ":material/reviews:",
      "Quelles cuisines le public suit-il ?",
-     "Nombre moyen d'avis par recette, cuisine par cuisine."),
+     "Nombre moyen d'avis par recette, cuisine par cuisine.",
+     "attention"),
     ("app_pages/4_Facettes.py", "4. Facettes", ":material/restaurant_menu:",
      "Chaque cuisine est-elle montrée par des plats variés ?",
-     "Part des desserts, plats, soupes et accompagnements dans chaque cuisine."),
+     "Part des desserts, plats, soupes et accompagnements dans chaque cuisine.",
+     "facettes"),
 ]
 cols = st.columns(2)
-for i, (page, label, icon, question, desc) in enumerate(steps):
-    with cols[i % 2].container(border=True):
-        st.markdown(f"**{question}**")
-        st.caption(desc)
-        st.page_link(page, label=label, icon=icon)
+for i, (page, label, icon, question, desc, theme_k) in enumerate(steps):
+    t = PAGE_THEMES[theme_k]
+    with cols[i % 2]:
+        st.markdown(
+            f"""
+            <div style="
+                background-color: {t['bg_card']};
+                border: 1px solid {t['border']};
+                border-left: 4px solid {t['accent']};
+                border-radius: 10px;
+                padding: 14px 16px;
+                margin-bottom: 10px;
+                min-height: 125px;
+            ">
+                <span style="
+                    display: inline-block;
+                    padding: 2px 8px;
+                    border-radius: 999px;
+                    background-color: {t['badge_bg']};
+                    color: {t['badge_text']};
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    margin-bottom: 6px;
+                ">{t['tag']}</span>
+                <div style="font-weight: 700; font-size: 1rem; color: #2D251E; margin-bottom: 4px;">{question}</div>
+                <div style="font-size: 0.84rem; color: #555555; line-height: 1.4;">{desc}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.page_link(page, label=f"Explorer : {label}", icon=icon)
 
 st.subheader("Ce que ces données permettent, et ne permettent pas, de dire")
 st.markdown(
@@ -88,5 +138,36 @@ st.markdown(
   Détails dans la page Méthodologie.
 """
 )
-st.page_link("app_pages/6_Methodologie.py", label="Méthodologie et limites",
+
+t_m = PAGE_THEMES["methodologie"]
+st.markdown(
+    f"""
+    <div style="
+        background-color: {t_m['bg_card']};
+        border: 1px solid {t_m['border']};
+        border-left: 4px solid {t_m['accent']};
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    ">
+        <span style="
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background-color: {t_m['badge_bg']};
+            color: {t_m['badge_text']};
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        ">{t_m['tag']}</span>
+        <div style="font-size: 0.88rem; color: #2D251E; line-height: 1.4;">
+            Tous les détails de calculs, les seuils retenus et l’estimation de l’erreur de classement des plats sont documentés dans la page dédiée.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.page_link("app_pages/6_Methodologie.py", label="Consulter la méthodologie et limites",
              icon=":material/science:")
+

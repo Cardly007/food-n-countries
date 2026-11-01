@@ -1,7 +1,7 @@
 # Journal de bord — audit critique de l'IA
 
 Projet : « Allrecipes reflète-t-elle la diversité culinaire mondiale ? »
-(M2 MIAGE Dauphine, Visualisation de données, Séances 1 à 6).
+(M2 MIAGE Dauphine, Visualisation de données).
 
 Ce journal documente, graphique par graphique, la proposition brute de l'IA,
 sa critique au regard du cours, les alternatives écartées et la version
@@ -304,8 +304,9 @@ pas comme un résultat.
 - Version finale : seule barre horizontale du site, triée, gris + accent
   orange sur les 5 premières, médiane en pointillé, valeurs en étiquettes
   (axe sans graduation, redondant), axe à zéro, effectif et astérisque si
-  < 30 recettes. Notes moyennes (4,25–4,73) en annotation seulement :
-  elles ne discriminent pas.
+  < 30 recettes. Libellés adaptés au filtre : noms de cuisines en vue globale
+  (ex. « Française ») et noms de pays en vue « Pays seulement » (ex. « France »).
+  Notes moyennes (4,25–4,73) en annotation seulement : elles ne discriminent pas.
 - Décision : **nouveau**.
 
 ### Page 4 — Barres empilées à 100 % par type de plat
@@ -479,3 +480,19 @@ un commit par point.
 - Version finale : « Gris : aucune catégorie nationale dans le catalogue » ;
   bascule activée : « … ni tradition régionale ».
 - Décision : **modifié**.
+
+### Fusion avec la branche « ameliorer graphiques » (PR #2)
+
+La branche de l'équipe (identité visuelle pastel, en-têtes de page, noms de pays
+en vue « Pays seulement », vue par type de plat en page 4) partait d'un état
+antérieur aux corrections R1 à R6. Résolution des conflits en gardant les deux
+apports :
+- page 2 : heatmap par continent (R4) + en-tête de page de l'équipe ;
+- page 3 : libellés pays / cuisines de l'équipe + part des 5 premières sur les
+  deux périmètres (R2) ;
+- page 4 : sélecteur de type de plat et choix du tri de l'équipe + couleurs,
+  contraste du texte, mention « seule la couche de base se lit précisément » et
+  encadré corrigé (R1, R3). Texte du segment de base : blanc seulement sur le
+  bleu foncé, foncé sur les autres couleurs ;
+- accueil : « validation manuelle » remplacé par « estimation de l'erreur de
+  classement des plats » (cohérence avec R1).

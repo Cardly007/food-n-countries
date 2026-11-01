@@ -4,7 +4,9 @@ import streamlit as st
 
 from src.ingredients import INGREDIENT_LABELS
 from src.load_data import load_processed, load_stats
-from src.theme import SEQUENTIAL, TEXT, apply_theme, chart_title, fmt_int, fmt_num, show
+from src.theme import (
+    SEQUENTIAL, TEXT, apply_theme, chart_title, fmt_int, fmt_num, page_header, show,
+)
 
 # Vue par défaut (Séance 2 : mémoire de travail ; Séance 3 : découper la
 # complexité) : quelques cuisines par continent et les ingrédients qui
@@ -41,11 +43,12 @@ families = load_processed("cuisine_families")
 catalog = load_processed("cuisine_catalog")
 attention = load_processed("attention")
 
-st.title("2. Les cuisines sont-elles vraiment différentes dans l'assiette ?")
-st.caption(
+page_header(
+    "ingredients",
+    "2. Les cuisines sont-elles vraiment différentes dans l'assiette ?",
     "Deuxième question : le contenu. Au-delà de l'étiquette « grecque » ou "
     "« thaïlandaise », les recettes de chaque cuisine utilisent-elles des "
-    "ingrédients différents ?"
+    "ingrédients différents ?",
 )
 
 # --- Cuisines et continents ----------------------------------------------------------
