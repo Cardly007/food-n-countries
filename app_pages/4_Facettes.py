@@ -46,13 +46,13 @@ if selected_view == VIEW_ALL:
     sorted_sub = mix[mix["dish_group"] == sort_group].sort_values("pct", ascending=False)
     order = sorted_sub["country"].tolist()
     n_total = sorted_sub.set_index("country")["n_total"]
-    labels = {c: f"{cu} ({fmt_int(n_total[c])}){'*' if n_total[c] < small else ''}"
+    labels = {c: f"{cu}{'*' if n_total[c] < small else ''}"
               for c, cu in zip(sorted_sub["country"], sorted_sub["cuisine"])}
 
     chart_title(
         "Quelle part des recettes de chaque cuisine sont des desserts, des plats, des soupes ou des accompagnements ?",
-        f"Chaque barre = 100 % des recettes de la cuisine (effectif entre parenthèses, "
-        f"* = moins de {fmt_int(small)} recettes). Cuisines triées par part de "
+        f"Chaque barre = 100 % des recettes de la cuisine (* = moins de {fmt_int(small)} recettes, "
+        f"effectif total au survol). Cuisines triées par part de "
         f"{sort_group.lower()} (premier segment à gauche) : c'est la seule couche qui "
         "se lit précisément, car elle part de zéro ; les autres ne donnent qu'un ordre "
         "de grandeur. Type de plat déduit du titre de la recette (heuristique, voir "
@@ -65,13 +65,9 @@ if selected_view == VIEW_ALL:
         fig.add_trace(go.Bar(
             y=[labels[c] for c in order], x=100 * g["pct"], name=group, orientation="h",
             marker=dict(color=colors[group], line=dict(color="white", width=1)),
-            text=[f"{v:.0f}" if group == sort_group and v >= 5 else "" for v in 100 * g["pct"]],
-            textposition="inside", insidetextanchor="start",
-            # Texte foncé sur l'orange, le bleu ciel et le gris ; blanc sur le bleu foncé.
-            textfont=dict(color="white" if colors[sort_group] == "#0072B2" else TEXT, size=11),
             customdata=g[["n", "n_total"]],
-            hovertemplate=f"%{{y}}<br>{group} : %{{x:.0f}} % "
-                          "(%{customdata[0]} recettes sur %{customdata[1]})<extra></extra>",
+            hovertemplate=f"<b>%{{y}}</b> — Total : %{{customdata[1]}} recettes<br>"
+                          f"{group} : %{{x:.0f}} % (%{{customdata[0]}} sur %{{customdata[1]}})<extra></extra>",
         ))
     apply_theme(fig, height=22 * len(order) + 110)
     fig.update_layout(
@@ -86,7 +82,6 @@ if selected_view == VIEW_ALL:
     show(fig)
 
     st.caption(
-        f"Nombre dans le premier segment : part de {sort_group.lower()} (%). "
         f"« Plats principaux » est le groupe par défaut : il contient aussi les entrées, "
         f"en-cas et garnitures que le titre ne permet pas de reconnaître. "
         f"Cuisines à moins de {fmt_int(stats['seuil_recettes'])} recettes exclues."
@@ -97,13 +92,13 @@ else:
     sub = mix[mix["dish_group"] == selected_view].sort_values("pct", ascending=False).reset_index(drop=True)
     order = sub["country"].tolist()
     n_total = sub.set_index("country")["n_total"]
-    labels = {c: f"{cu} ({fmt_int(n_total[c])}){'*' if n_total[c] < small else ''}"
+    labels = {c: f"{cu}{'*' if n_total[c] < small else ''}"
               for c, cu in zip(sub["country"], sub["cuisine"])}
 
     chart_title(
         f"Quelles cuisines proposent la plus grande part de {selected_view.lower()} ?",
-        f"Cuisines triées par ordre décroissant de la part de {selected_view.lower()} (effectif entre parenthèses, "
-        f"* = moins de {fmt_int(small)} recettes). En haut : la cuisine où ce type de plat est le plus représenté.",
+        f"Cuisines triées par ordre décroissant de la part de {selected_view.lower()} (* = moins de {fmt_int(small)} recettes, "
+        f"effectif total au survol). En haut : la cuisine où ce type de plat est le plus représenté.",
     )
 
     median_pct = 100 * sub["pct"].median()
@@ -119,8 +114,8 @@ else:
         textfont=dict(size=11, color=TEXT),
         cliponaxis=False,
         customdata=sub[["n", "n_total"]],
-        hovertemplate=f"%{{y}}<br><b>{selected_view} : %{{x:.1f}} %</b><br>"
-                      "(%{customdata[0]} recettes sur %{customdata[1]})<extra></extra>",
+        hovertemplate=f"<b>%{{y}}</b> — Total : %{{customdata[1]}} recettes<br>"
+                      f"<b>{selected_view} : %{{x:.1f}} %</b> (%{{customdata[0]}} sur %{{customdata[1]}})<extra></extra>",
     ))
     fig.add_vline(x=median_pct, line=dict(color=MUTED, width=1.5, dash="dot"))
     fig.add_annotation(

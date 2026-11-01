@@ -135,39 +135,6 @@ st.markdown(
   comptent la présence ou l'absence d'une cuisine et les petits effectifs.
 - **Des catégories hétérogènes** : la colonne « pays » mélange des pays, des
   régions multi-pays, des traditions régionales américaines et des communautés.
-  Détails dans la page Méthodologie.
 """
 )
-
-t_m = PAGE_THEMES["methodologie"]
-st.markdown(
-    f"""
-    <div style="
-        background-color: {t_m['bg_card']};
-        border: 1px solid {t_m['border']};
-        border-left: 4px solid {t_m['accent']};
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-    ">
-        <span style="
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 999px;
-            background-color: {t_m['badge_bg']};
-            color: {t_m['badge_text']};
-            font-size: 0.72rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        ">{t_m['tag']}</span>
-        <div style="font-size: 0.88rem; color: #2D251E; line-height: 1.4;">
-            Tous les détails de calculs, les seuils retenus et l’estimation de l’erreur de classement des plats sont documentés dans la page dédiée.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-st.page_link("app_pages/6_Methodologie.py", label="Consulter la méthodologie et limites",
-             icon=":material/science:")
 

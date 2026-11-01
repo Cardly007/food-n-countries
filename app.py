@@ -33,9 +33,6 @@ pages = {
         st.Page("app_pages/3_Attention.py", title="3. Attention", icon=":material/reviews:", url_path="attention"),
         st.Page("app_pages/4_Facettes.py", title="4. Facettes (type de plat)", icon=":material/restaurant_menu:", url_path="facettes"),
     ],
-    "Comprendre": [
-        st.Page("app_pages/6_Methodologie.py", title="Méthodologie", icon=":material/science:", url_path="methodologie"),
-    ],
 }
 
 pg = st.navigation(pages)

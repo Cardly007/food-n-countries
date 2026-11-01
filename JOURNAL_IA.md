@@ -496,3 +496,46 @@ apports :
   bleu foncé, foncé sur les autres couleurs ;
 - accueil : « validation manuelle » remplacé par « estimation de l'erreur de
   classement des plats » (cohérence avec R1).
+
+### R7. Page 1 — Palette verte daltonien-friendly sur la carte et les flèches
+
+- État initial : carte choroplèthe en orange `#E69F00` et orange clair `#F6CD86` ;
+  flèches divergentes orange `#E69F00` (positif) et bleu `#0072B2` (négatif).
+- Critique : retour de l'équipe : l'orange est jugé visuellement trop vif sur
+  l'ensemble du globe. Souhait d'une palette vert clair / vert sauge plus
+  apaisante, avec l'exigence impérative de rester **100 % daltonien-friendly**
+  (Séance 2 : respect des contrastes de luminance, aucun conflit avec le fond
+  gris `#E6E6E6`, pas de confusion chromatique).
+- Alternative écartée : vert vif saturé (ex. `#00FF00` ou `#4CAF50` clair), qui
+  se confond avec le gris clair en deutéranopie/protanopie par manque de contraste
+  de luminance.
+- Version finale :
+  - **Carte choroplèthe** : vert sauge franc `#2E7D32` (catégories nationales) et
+    vert clair pastel `#81C784` (présence indirecte / traditions régionales)
+    sur fond de pays absent gris clair `#E6E6E6`.
+  - **Flèches par continent** : vert sauge `#2E7D32` (surreprésenté) vs bleu
+    profond `#0A4D8C` (sous-représenté). Le double encodage est rigoureusement
+    maintenu (orientation physique de la flèche, signe `+` ou `−` explicite
+    dans l'étiquette de points).
+  - **Validation mathématique (daltonisme)** : simulations selon les matrices
+    de Viénot / Brettel et Machado (2009). Écarts perceptifs CIELAB vérifiés :
+    $\Delta E \ge 29$ entre le vert soutenu et le vert clair (y compris sous
+    deutéranopie et protanopie), $\Delta E \ge 31$ entre le vert clair et le
+    fond gris, et $\Delta E \ge 26$ entre les deux sens de flèches avec ratio de
+    luminance $\ge 1,6:1$.
+- Décision : **modifié**.
+
+### R8. Navigation — Retrait de l'onglet Méthodologie
+
+- État initial : section « Comprendre » dans la barre latérale avec l'onglet
+  « Méthodologie » (`app_pages/6_Methodologie.py`).
+- Critique : retour de l'équipe : l'onglet surcharge la navigation principale de
+  l'application. Les éléments méthodologiques clés sont déjà intégrés directement
+  dans le contexte de chaque page (infobulles, encadrés d'avertissement,
+  méthodologie de classification des plats, signalement des petits effectifs) et
+  dans le présent journal de bord.
+- Version finale : retrait de `st.Page("app_pages/6_Methodologie.py")` de la
+  navigation (`app.py`), suppression du lien et du bandeau dans `0_Accueil.py`,
+  et archivage du fichier dans `app_pages/_archive/6_Methodologie.py`.
+- Décision : **modifié**.
+

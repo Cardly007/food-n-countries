@@ -108,7 +108,7 @@ with st.expander("Filtrer par famille de cuisines (regroupement indicatif)"):
         f"d'ingrédients. Regroupement indicatif, peu stable : sans les desserts, "
         f"l'accord avec la partition retenue n'est que de "
         f"{fmt_num(stats['ari_sans_desserts'], 2)} (indice de Rand ajusté, "
-        f"1 = partition identique). Voir la page Méthodologie."
+        f"1 = partition identique)."
     )
     selected_fams = st.pills(
         "Familles affichées", fam_labels, selection_mode="multi", default=fam_labels,
