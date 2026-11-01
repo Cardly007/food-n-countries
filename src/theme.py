@@ -20,16 +20,20 @@ import streamlit as st
 # Mise en évidence : gris neutre pour le fond + un accent unique.
 GREY = "#BDBDBD"
 GREY_LIGHT = "#E6E6E6"
-ACCENT = "#E69F00"  # orange Okabe-Ito
-# Version claire de l'accent, pour un état « intermédiaire » (présence
-# indirecte sur la carte). Écart de couleur ΔE ≥ 25 avec l'accent et avec le
-# gris clair, y compris en simulation de deutéranopie, protanopie et tritanopie.
+ACCENT = "#E69F00"  # orange Okabe-Ito (accentuation des classements et desserts)
 ACCENT_LIGHT = "#F6CD86"
 
-# Divergente (sens d'un écart) : deux teintes distinctes, lisibles par les
-# daltoniens, autour d'un point neutre.
-DIV_POS = "#E69F00"  # au-dessus de la référence
-DIV_NEG = "#0072B2"  # en dessous de la référence
+# Couverture (Axe 1) : teintes vertes daltonien-friendly pour la carte choroplèthe.
+# Vert sauge franc (#2E7D32) et vert clair pastel (#81C784) :
+# Écart ΔE ≥ 29 entre les deux teintes et avec le gris clair (#E6E6E6),
+# garanti en simulation de deutéranopie, protanopie et tritanopie.
+MAP_NATIONAL = "#2E7D32"      # Vert sauge franc (catégorie nationale)
+MAP_INDIRECT = "#81C784"      # Vert clair / menthe douce (présence indirecte)
+
+# Divergente (sens d'un écart) : vert sauge franc vs bleu profond Okabe-Ito,
+# lisibles par tous les daltoniens, autour du point neutre gris.
+DIV_POS = "#2E7D32"  # surreprésenté dans le catalogue (vert sauge franc)
+DIV_NEG = "#0A4D8C"  # sous-représenté dans le catalogue (bleu profond)
 DIV_NEUTRAL = GREY
 
 # Séquentielle (heatmap) : une seule teinte.

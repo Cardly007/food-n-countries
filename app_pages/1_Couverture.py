@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.load_data import load_processed, load_stats
 from src.theme import (
-    ACCENT, ACCENT_LIGHT, DIV_NEG, DIV_POS, GREY, GREY_LIGHT, MUTED, apply_theme,
+    DIV_NEG, DIV_POS, GREY, GREY_LIGHT, MAP_INDIRECT, MAP_NATIONAL, MUTED, apply_theme,
     chart_title, fmt_int, fmt_num, fmt_pct, page_header, show,
 )
 
@@ -47,10 +47,10 @@ n_indirect = int((by_iso["statut"] == INDIRECT).sum())
 not_mapped = catalog[~catalog["country"].isin(shown["country"])
                      & (catalog["map_type"] != "single_country")]
 
-subtitle = (f"Orange : pays dont la cuisine a sa propre catégorie sur Allrecipes "
+subtitle = (f"Vert : pays dont la cuisine a sa propre catégorie sur Allrecipes "
             f"({fmt_int(n_national)} pays). ")
 if with_regional:
-    subtitle += (f"Orange clair : pays présents seulement à travers une tradition "
+    subtitle += (f"Vert clair : pays présents seulement à travers une tradition "
                  f"régionale ({fmt_int(n_indirect)} pays). ")
 subtitle += ("Gris : aucune catégorie nationale dans le catalogue"
              + (" ni tradition régionale. " if with_regional else ". ")
@@ -59,7 +59,7 @@ chart_title("Quels pays ont leur cuisine dans le catalogue ?", subtitle)
 
 fig = px.choropleth(
     by_iso, locations="iso3", color="statut",
-    color_discrete_map={NATIONAL: ACCENT, INDIRECT: ACCENT_LIGHT},
+    color_discrete_map={NATIONAL: MAP_NATIONAL, INDIRECT: MAP_INDIRECT},
     category_orders={"statut": [NATIONAL, INDIRECT]},
     hover_name="cuisines",
     hover_data={"iso3": False, "statut": False, "cuisines": False},
@@ -107,7 +107,7 @@ chart_title(
     "Le poids de chaque continent dans le catalogue suit-il son poids dans la population mondiale ?",
     f"Chaque flèche part de la part du continent dans la population mondiale "
     f"(point gris) et arrive à sa part parmi les {n_cont} catégories de "
-    f"cuisine rattachées à un continent. Orange : plus présent dans le "
+    f"cuisine rattachées à un continent. Vert : plus présent dans le "
     f"catalogue que dans la population ; bleu : moins présent. Étiquette : "
     f"écart en points de pourcentage. Les catégories sont comptées une à une, "
     f"pas en recettes."
