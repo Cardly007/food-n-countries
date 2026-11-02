@@ -53,7 +53,7 @@ chart_title(
     f"Combien d'avis une recette de chaque {'pays' if is_pays else 'cuisine'} reçoit-elle en moyenne ?",
     f"Avis par recette = nombre total d'évaluations des recettes "
     f"{'du pays' if is_pays else 'de la cuisine'} ÷ "
-    f"nombre de recettes (entre parenthèses). En orange : les {TOP_N} "
+    f"nombre de recettes (au survol). En orange : les {TOP_N} "
     f"{'premiers' if is_pays else 'premières'}. "
     f"Les {TOP_N} premières = {fmt_pct(share_all)} des avis sur les {len(att)} "
     f"cuisines, {fmt_pct(share_41)} sur les {n_41} pays. "
@@ -64,7 +64,7 @@ chart_title(
 
 small = stats["seuil_petit_effectif"]
 names = [COUNTRY_NAMES_FR.get(c, c) for c in d["country"]] if is_pays else d["cuisine"]
-labels = [f"{c} ({fmt_int(n)}){'*' if n < small else ''}"
+labels = [f"{c}{'*' if n < small else ''}"
           for c, n in zip(names, d["n_recettes"])]
 colors = [ACCENT if i < TOP_N else GREY for i in range(len(d))]
 fig = go.Figure(go.Bar(

@@ -57,6 +57,23 @@ subtitle += ("Gris : aucune catégorie nationale dans le catalogue"
              + "Survolez un pays pour voir les catégories.")
 chart_title("Quels pays ont leur cuisine dans le catalogue ?", subtitle)
 
+# Légende des codes couleur (le gris « absent » n'est pas une trace Plotly,
+# d'où une légende HTML plutôt que celle du graphique).
+legend_items = [(MAP_NATIONAL, "Présent")]
+if with_regional:
+    legend_items.append((MAP_INDIRECT, "Indirect"))
+legend_items.append((GREY_LIGHT, "Absent"))
+st.markdown(
+    '<div style="display:flex;flex-wrap:wrap;gap:18px;font-size:0.9rem;margin:2px 0 6px">'
+    + "".join(
+        f'<span style="display:inline-flex;align-items:center;gap:6px">'
+        f'<span style="width:14px;height:14px;border-radius:3px;background:{c};'
+        f'border:1px solid #cfcfcf;display:inline-block"></span>{lbl}</span>'
+        for c, lbl in legend_items)
+    + "</div>",
+    unsafe_allow_html=True,
+)
+
 fig = px.choropleth(
     by_iso, locations="iso3", color="statut",
     color_discrete_map={NATIONAL: MAP_NATIONAL, INDIRECT: MAP_INDIRECT},

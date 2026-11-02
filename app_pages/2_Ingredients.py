@@ -137,7 +137,7 @@ for bloc, block in shown.groupby("bloc", sort=False):
     for r in block.itertuples():
         n = int(n_scope[r.country])
         star = "*" if r.n_recettes < small else ""
-        ylabels.append(f"{r.cuisine} ({fmt_int(n)}){star}")
+        ylabels.append(f"{r.cuisine}{star}")
         if n < min_n:
             z.append([None] * len(ingredients))
             text.append([f"n < {fmt_int(min_n)}"] * len(ingredients))
@@ -151,8 +151,8 @@ n_rows = len(shown)
 chart_title(
     "Quels ingrédients reviennent dans les recettes de chaque cuisine ?",
     "Chaque case = part des recettes de la cuisine contenant l'ingrédient (en %). "
-    "Plus la case est foncée, plus l'ingrédient est fréquent. Entre parenthèses : "
-    f"nombre de recettes ; * = moins de {fmt_int(small)} recettes. Cuisines "
+    "Plus la case est foncée, plus l'ingrédient est fréquent. Nombre de recettes "
+    f"au survol ; * = moins de {fmt_int(small)} recettes. Cuisines "
     "regroupées par continent (comme en page 1), et rangées dans chaque bloc par "
     "ressemblance de profil. "
     + ("" if show_all_cuisines else
