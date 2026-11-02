@@ -4,7 +4,6 @@ Depuis la refonte « diversité », la description des pages, des données et de
 choix méthodologiques se trouve dans :
 
 - `README.md` : installation, lancement, structure ;
-- `JOURNAL_IA.md` : décisions et audit graphique par graphique.
 
 Les pages de la première version (problématique nutritionnelle) sont
 archivées dans `app_pages/_archive/`.

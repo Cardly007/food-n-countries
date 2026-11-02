@@ -22,13 +22,10 @@ st.markdown(
         box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     ">
         <div style="margin-bottom: 8px; font-size: 0.95rem;">
-            <b style="color: #2D251E;">À qui s'adresse cette application ?</b> Aux responsables éditoriaux et produit d'une plateforme de recettes.
+            <b style="color: #2D251E;">À qui s'adresse cette application ?</b> Aux responsables éditoriaux et produit de cette plateforme de recettes.
         </div>
         <div style="margin-bottom: 8px; font-size: 0.95rem;">
             <b style="color: #2D251E;">Pour décider quoi ?</b> Quelles cuisines ajouter au catalogue ou mettre en avant.
-        </div>
-        <div style="font-size: 0.95rem;">
-            <b style="color: #E06D53;">Question centrale :</b> le catalogue d'Allrecipes reflète-t-il la diversité culinaire mondiale ?
         </div>
     </div>
     """,
