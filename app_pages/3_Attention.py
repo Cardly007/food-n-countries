@@ -1,9 +1,10 @@
 import plotly.graph_objects as go
 import streamlit as st
 
+from src.country_mapping import COUNTRY_NAMES_FR
 from src.load_data import load_processed, load_stats
 from src.theme import (
-    ACCENT, GREY, MUTED, TEXT, apply_theme, chart_title, fmt_int, fmt_num, fmt_pct, show,
+    ACCENT, GREY, MUTED, TEXT, apply_theme, chart_title, fmt_int, fmt_num, fmt_pct, page_header, show,
 )
 
 TOP_N = 5
@@ -11,10 +12,11 @@ TOP_N = 5
 stats = load_stats()
 att = load_processed("attention")
 
-st.title("3. Quelles cuisines le public suit-il ?")
-st.caption(
+page_header(
+    "attention",
+    "3. Quelles cuisines le public suit-il ?",
     "Troisième question : l'attention. Toutes les cuisines du catalogue "
-    "reçoivent-elles le même intérêt de la part des utilisateurs du site ?"
+    "reçoivent-elles le même intérêt de la part des utilisateurs du site ?",
 )
 
 pays = att[att["map_type"] == "single_country"]
@@ -23,11 +25,12 @@ OPTIONS = {
     f"Pays seulement ({len(pays)})": pays,
 }
 choice = st.segmented_control(
-    "Cuisines comparées", list(OPTIONS), default=list(OPTIONS)[0],
+    "Périmètre", list(OPTIONS), default=list(OPTIONS)[0],
     help="« Pays seulement » retire les traditions régionales ou communautaires "
          "(Sud des États-Unis, cajun, soul food, Tex-Mex, juive, amish) et la "
-         "catégorie multi-pays « Scandinave ».",
+         "catégorie multi-pays « Scandinave » pour afficher directement les pays.",
 ) or list(OPTIONS)[0]
+is_pays = choice.startswith("Pays seulement")
 d = OPTIONS[choice].sort_values("avis_par_recette", ascending=False).reset_index(drop=True)
 median = d["avis_par_recette"].median()
 
@@ -47,19 +50,22 @@ n_41 = int(stats["n_categories_single_country"])
 n_41_hidden = n_41 - len(pays)
 
 chart_title(
-    "Combien d'avis une recette de chaque cuisine reçoit-elle en moyenne ?",
-    f"Avis par recette = nombre total d'évaluations des recettes de la cuisine ÷ "
-    f"nombre de recettes (entre parenthèses). En orange : les {TOP_N} premières. "
+    f"Combien d'avis une recette de chaque {'pays' if is_pays else 'cuisine'} reçoit-elle en moyenne ?",
+    f"Avis par recette = nombre total d'évaluations des recettes "
+    f"{'du pays' if is_pays else 'de la cuisine'} ÷ "
+    f"nombre de recettes (entre parenthèses). En orange : les {TOP_N} "
+    f"{'premiers' if is_pays else 'premières'}. "
     f"Les {TOP_N} premières = {fmt_pct(share_all)} des avis sur les {len(att)} "
     f"cuisines, {fmt_pct(share_41)} sur les {n_41} pays. "
-    f"Trait vertical : médiane des cuisines affichées. Un « avis » mesure "
+    f"Trait vertical : médiane des {'pays affichés' if is_pays else 'cuisines affichées'}. Un « avis » mesure "
     f"l'engagement des utilisateurs, ni la qualité des recettes ni une "
     f"préférence mondiale.",
 )
 
 small = stats["seuil_petit_effectif"]
+names = [COUNTRY_NAMES_FR.get(c, c) for c in d["country"]] if is_pays else d["cuisine"]
 labels = [f"{c} ({fmt_int(n)}){'*' if n < small else ''}"
-          for c, n in zip(d["cuisine"], d["n_recettes"])]
+          for c, n in zip(names, d["n_recettes"])]
 colors = [ACCENT if i < TOP_N else GREY for i in range(len(d))]
 fig = go.Figure(go.Bar(
     x=d["avis_par_recette"], y=labels, orientation="h",
@@ -89,9 +95,9 @@ st.caption(
     f"nationales, y compris les {n_41_hidden} de moins de "
     f"{fmt_int(stats['seuil_recettes'])} recettes non affichées ; sur les "
     f"{len(pays)} pays affichés par la bascule, {fmt_pct(top_share(pays))}. Les notes "
-    f"moyennes varient peu d'une cuisine à l'autre (de "
+    f"moyennes varient peu {'d’un pays à l’autre' if is_pays else 'd’une cuisine à l’autre'} (de "
     f"{fmt_num(d['note_moyenne'].min(), 2)} à {fmt_num(d['note_moyenne'].max(), 2)} "
-    f"sur 5) : elles ne distinguent pas les cuisines et ne sont donc pas représentées."
+    f"sur 5) : elles ne distinguent pas les {'pays' if is_pays else 'cuisines'} et ne sont donc pas représentées."
 )
 st.info(
     f"Audience principalement américaine : ce classement reflète l'intérêt des "
